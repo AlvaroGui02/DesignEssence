@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DesignEssence - Perfil</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/profiles.css">
+</head>
+<body>
+  <!-- Barra Superior -->
+  <header class="navbar">
+    <div class="navbar-container">
+      <img src="images/logo.png" alt="Logo" class="navbar-logo-img" onclick="window.location.href='feed.html'">
+      
+      <div class="navbar-search">
+        <input type="text" id="searchInput" placeholder="Pesquisar...">
+      </div>
+      
+      <div class="navbar-actions">
+        <button id="btnNewPost" class="btn-new-post" onclick="window.location.href='feed.html'">Nova Publicação</button>
+        <div class="user-menu">
+          <img id="userAvatar" src="" alt="Avatar" class="user-avatar">
+          <!-- Dropdown Menu -->
+          <div id="dropdownMenu" class="dropdown-menu hidden">
+            <a href="profile.html" class="dropdown-item">
+              <span class="icon">👤</span> Perfil
+            </a>
+            <a href="settings.html" class="dropdown-item">
+              <span class="icon">⚙️</span> Configurações
+            </a>
+            <div class="dropdown-divider"></div>
+            <button id="btnLogout" class="dropdown-item logout">
+              <span class="icon">🚪</span> Sair
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Container Principal -->
+  <main class="profile-container">
+    <!-- Header do Perfil -->
+    <div class="profile-header">
+      <div class="profile-avatar-large">
+        <img id="profileAvatar" src="" alt="Avatar">
+      </div>
+      
+      <div class="profile-info">
+        <div class="profile-username-row">
+          <h2 id="profileUsername">Carregando...</h2>
+          <button id="btnEditProfile" class="btn-edit-profile">Editar Perfil</button>
+        </div>
+        
+        <div class="profile-stats">
+          <div class="stat">
+            <span class="stat-number" id="postsCount">0</span>
+            <span class="stat-label">publicações</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number" id="followersCount">0</span>
+            <span class="stat-label">seguidores</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number" id="followingCount">0</span>
+            <span class="stat-label">seguindo</span>
+          </div>
+        </div>
+        
+        <div class="profile-bio">
+          <p id="profileBio">Sem biografia</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divisor -->
+    <div class="profile-divider"></div>
+
+    <!-- Grid de Publicações -->
+    <div class="profile-posts">
+      <div id="profilePostsGrid" class="posts-grid">
+        <!-- Posts do usuário -->
+      </div>
+      
+      <div id="loadingProfile" class="loading">
+        <p>Carregando publicações...</p>
+      </div>
+      
+      <div id="emptyProfile" class="empty-state hidden">
+        <h3>Nenhuma publicação ainda</h3>
+        <p>Compartilhe seu primeiro design!</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal de Editar Perfil -->
+  <div id="modalEditProfile" class="modal hidden">
+    <div class="modal-content modal-edit">
+      <div class="modal-header">
+        <h2>Editar Perfil</h2>
+        <button class="modal-close" id="closeModalEdit">&times;</button>
+      </div>
+      
+      <form id="formEditProfile">
+        <!-- Avatar -->
+        <div class="edit-avatar-section">
+          <img id="editAvatar" src="" alt="Avatar" class="edit-avatar-preview">
+          <div class="edit-avatar-actions">
+            <label for="avatarUpload" class="btn-change-avatar">
+              Alterar foto de perfil
+            </label>
+            <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
+          </div>
+        </div>
+
+        <!-- Nome de usuário -->
+        <div class="form-group">
+          <label for="editUsername">Nome de usuário</label>
+          <input type="text" id="editUsername" placeholder="Seu nome de usuário" required minlength="3">
+        </div>
+
+        <!-- Biografia -->
+        <div class="form-group">
+          <label for="editBio">Biografia</label>
+          <textarea id="editBio" placeholder="Conte um pouco sobre você..." rows="4" maxlength="150"></textarea>
+          <small class="char-counter"><span id="bioCharCount">0</span>/150</small>
+        </div>
+
+        <!-- Botões -->
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" id="btnCancelEdit">Cancelar</button>
+          <button type="submit" class="btn-save">Salvar</button>
+        </div>
+      </form>
+      
+      <div id="editMessage" class="message hidden"></div>
+    </div>
+  </div>
+
+  <!-- Modal de Visualizar Publicação -->
+  <div id="modalViewPost" class="modal hidden">
+    <div class="modal-view-content">
+      <button class="modal-close-view" id="closeViewModal">&times;</button>
+      <div id="viewPostContent" class="view-post-container">
+        <!-- Conteúdo será carregado aqui -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts (UMA VEZ SÓ) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/profile.js"></script>
+</body>
+</html>

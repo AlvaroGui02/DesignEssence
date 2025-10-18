@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DesignEssence - Configurações</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/settings.css">
+</head>
+<body>
+  <!-- Barra Superior -->
+  <header class="navbar">
+    <div class="navbar-container">
+      <img src="images/logo.png" alt="Logo" class="navbar-logo-img" onclick="window.location.href='feed.html'">
+      
+      <div class="navbar-search">
+        <input type="text" id="searchInput" placeholder="Pesquisar...">
+      </div>
+      
+      <div class="navbar-actions">
+        <button id="btnNewPost" class="btn-new-post" onclick="window.location.href='feed.html'">Nova Publicação</button>
+        <div class="user-menu">
+          <img id="userAvatar" src="" alt="Avatar" class="user-avatar">
+          <!-- Dropdown Menu -->
+          <div id="dropdownMenu" class="dropdown-menu hidden">
+            <a href="profile.html" class="dropdown-item">
+              <span class="icon">👤</span> Perfil
+            </a>
+            <a href="settings.html" class="dropdown-item">
+              <span class="icon">⚙️</span> Configurações
+            </a>
+            <div class="dropdown-divider"></div>
+            <button id="btnLogout" class="dropdown-item logout">
+              <span class="icon">🚪</span> Sair
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Container Principal -->
+  <main class="settings-container">
+    <div class="settings-sidebar">
+      <h2 class="settings-title">Configurações</h2>
+      
+      <nav class="settings-nav">
+        <button class="nav-item active" data-section="account">
+          <span class="icon">👤</span> Conta
+        </button>
+        <button class="nav-item" data-section="security">
+          <span class="icon">🔒</span> Segurança
+        </button>
+        <button class="nav-item" data-section="privacy">
+          <span class="icon">🛡️</span> Privacidade
+        </button>
+        <button class="nav-item" data-section="appearance">
+          <span class="icon">🎨</span> Aparência
+        </button>
+        <button class="nav-item" data-section="notifications">
+          <span class="icon">🔔</span> Notificações
+        </button>
+        <button class="nav-item" data-section="language">
+          <span class="icon">🌍</span> Idioma e Região
+        </button>
+      </nav>
+    </div>
+
+    <div class="settings-content">
+      <!-- Seção: Conta -->
+      <section id="account" class="settings-section active">
+        <h3 class="section-title">Informações da Conta</h3>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">E-mail</label>
+            <p id="userEmail" class="setting-value">carregando@email.com</p>
+          </div>
+          <button id="btnChangeEmail" class="btn-secondary">Alterar</button>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">Nome de usuário</label>
+            <p id="userName" class="setting-value">@usuario</p>
+          </div>
+          <button onclick="window.location.href='profile.html'" class="btn-secondary">Editar</button>
+        </div>
+
+        <div class="setting-item danger-zone">
+          <div class="setting-info">
+            <label class="setting-label">Excluir conta</label>
+            <p class="setting-description">Uma vez excluída, não há como voltar atrás.</p>
+          </div>
+          <button id="btnDeleteAccount" class="btn-danger">Excluir conta</button>
+        </div>
+      </section>
+
+      <!-- Seção: Segurança -->
+      <section id="security" class="settings-section">
+        <h3 class="section-title">Segurança</h3>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">Senha</label>
+            <p class="setting-description">Última alteração: Nunca</p>
+          </div>
+          <button id="btnChangePassword" class="btn-secondary">Alterar senha</button>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">Autenticação de dois fatores</label>
+            <p class="setting-description">Adicione uma camada extra de segurança</p>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle2FA">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">Sessões ativas</label>
+            <p class="setting-description">Gerencie dispositivos conectados</p>
+          </div>
+          <button class="btn-secondary">Ver sessões</button>
+        </div>
+      </section>
+
+      <!-- Seção: Privacidade -->
+      <section id="privacy" class="settings-section">
+        <h3 class="section-title">Privacidade</h3>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">Conta privada</label>
+            <p class="setting-description">Apenas seguidores aprovados podem ver suas publicações</p>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="togglePrivateAccount">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">Mostrar atividade online</label>
+            <p class="setting-description">Permitir que outros vejam quando você está online</p>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggleOnlineStatus" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">Compartilhamento de dados</label>
+            <p class="setting-description">Permitir análise de uso para melhorar o serviço</p>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggleDataSharing" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">Permitir marcações</label>
+            <p class="setting-description">Outras pessoas podem marcar você em publicações</p>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggleTagging" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </section>
+
+      <!-- Seção: Aparência -->
+      <section id="appearance" class="settings-section">
+        <h3 class="section-title">Aparência</h3>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">Tema</label>
+            <p class="setting-description">Escolha como o DesignEssence aparece para você</p>
+          </div>
+          <div class="theme-options">
+            <button class="theme-btn active" data-theme="light">
+              <span class="icon">☀️</span> Claro
+            </button>
+            <button class="theme-btn" data-theme="dark">
+              <span class="icon">🌙</span> Escuro
+            </button>
+            <button class="theme-btn" data-theme="auto">
+              <span class="icon">⚙️</span> Automático
+            </button>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">Tamanho da fonte</label>
+            <p class="setting-description">Ajuste o tamanho do texto</p>
+          </div>
+          <div class="font-size-options">
+            <button class="font-btn" data-size="small">A</button>
+            <button class="font-btn active" data-size="medium">A</button>
+            <button class="font-btn" data-size="large">A</button>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">Animações reduzidas</label>
+            <p class="setting-description">Reduzir movimento na interface</p>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggleReducedMotion">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </section>
+
+      <!-- Seção: Notificações -->
+      <section id="notifications" class="settings-section">
+        <h3 class="section-title">Notificações</h3>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">Curtidas</label>
+            <p class="setting-description">Quando alguém curtir suas publicações</p>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggleNotifLikes" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">Comentários</label>
+            <p class="setting-description">Quando alguém comentar em suas publicações</p>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggleNotifComments" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">Novos seguidores</label>
+            <p class="setting-description">Quando alguém começar a seguir você</p>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggleNotifFollowers" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">Notificações por e-mail</label>
+            <p class="setting-description">Receber resumos por e-mail</p>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggleEmailNotif">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </section>
+
+      <!-- Seção: Idioma -->
+      <section id="language" class="settings-section">
+        <h3 class="section-title">Idioma e Região</h3>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">Idioma do aplicativo</label>
+            <p class="setting-description">Escolha o idioma da interface</p>
+          </div>
+          <select class="select-input">
+            <option value="pt-BR" selected>Português (Brasil)</option>
+            <option value="en-US">English (US)</option>
+            <option value="es-ES">Español</option>
+            <option value="fr-FR">Français</option>
+          </select>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">Fuso horário</label>
+            <p class="setting-description">Ajuste automático baseado na localização</p>
+          </div>
+          <select class="select-input">
+            <option value="America/Sao_Paulo" selected>Brasília (GMT-3)</option>
+            <option value="America/New_York">Nova York (GMT-5)</option>
+            <option value="Europe/London">Londres (GMT+0)</option>
+            <option value="Asia/Tokyo">Tóquio (GMT+9)</option>
+          </select>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">Formato de data</label>
+            <p class="setting-description">Como as datas são exibidas</p>
+          </div>
+          <select class="select-input">
+            <option value="dd/mm/yyyy" selected>DD/MM/AAAA</option>
+            <option value="mm/dd/yyyy">MM/DD/AAAA</option>
+            <option value="yyyy-mm-dd">AAAA-MM-DD</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Mensagem de feedback -->
+      <div id="settingsMessage" class="message hidden"></div>
+    </div>
+  </main>
+
+  <!-- Modal de Alterar E-mail -->
+  <div id="modalChangeEmail" class="modal hidden">
+    <div class="modal-content modal-small">
+      <div class="modal-header">
+        <h2>Alterar E-mail</h2>
+        <button class="modal-close" id="closeEmailModal">&times;</button>
+      </div>
+      
+      <form id="formChangeEmail">
+        <div class="form-group">
+          <label>E-mail atual</label>
+          <input type="email" id="currentEmail" disabled>
+        </div>
+        
+        <div class="form-group">
+          <label>Novo e-mail</label>
+          <input type="email" id="newEmail" placeholder="novo@email.com" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Senha atual</label>
+          <input type="password" id="passwordEmail" placeholder="Digite sua senha" required>
+        </div>
+        
+        <button type="submit" class="btn-primary">Alterar e-mail</button>
+      </form>
+      
+      <div id="emailMessage" class="message hidden"></div>
+    </div>
+  </div>
+
+  <!-- Modal de Alterar Senha -->
+  <div id="modalChangePassword" class="modal hidden">
+    <div class="modal-content modal-small">
+      <div class="modal-header">
+        <h2>Alterar Senha</h2>
+        <button class="modal-close" id="closePasswordModal">&times;</button>
+      </div>
+      
+      <form id="formChangePassword">
+        <div class="form-group">
+          <label>Senha atual</label>
+          <input type="password" id="currentPassword" placeholder="Digite sua senha atual" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Nova senha</label>
+          <input type="password" id="newPassword" placeholder="Digite a nova senha" required minlength="6">
+        </div>
+        
+        <div class="form-group">
+          <label>Confirmar nova senha</label>
+          <input type="password" id="confirmPassword" placeholder="Confirme a nova senha" required minlength="6">
+        </div>
+        
+        <button type="submit" class="btn-primary">Alterar senha</button>
+      </form>
+      
+      <div id="passwordMessage" class="message hidden"></div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/settings.js"></script>
+</body>
+</html>
