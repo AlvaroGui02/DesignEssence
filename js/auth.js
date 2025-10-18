@@ -90,8 +90,8 @@ document.addEventListener('DOMContentLoaded', () => {
     formRegister.addEventListener('submit', async (e) => {
       e.preventDefault();
       
-      const username = document.getElementById('registerUsername').value;
-      const email = document.getElementById('registerEmail').value;
+      const username = document.getElementById('registerUsername').value.trim();
+      const email = document.getElementById('registerEmail').value.trim();
       const password = document.getElementById('registerPassword').value;
       
       // Validações
@@ -106,6 +106,20 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       
       try {
+        showMessage('Criando conta...', 'success');
+
+        // Verificar se username já existe
+        const { data: existingUser } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('username', username)
+          .single();
+
+        if (existingUser) {
+          showMessage('Nome de usuário já está em uso', 'error');
+          return;
+        }
+
         // Criar usuário no Supabase Auth
         const { data, error } = await supabase.auth.signUp({
           email: email,
@@ -114,6 +128,17 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (error) throw error;
         
+        // Avatar padrão - ESCOLHA UMA OPÇÃO:
+        
+        // OPÇÃO 1: Imagem local (coloque avatar-default.png na pasta images/)
+        const defaultAvatarUrl = 'images/avatar-default.png';
+        
+        // OPÇÃO 2: Placeholder online azul com ícone
+        // const defaultAvatarUrl = 'https://ui-avatars.com/api/?name=User&background=0095F6&color=fff&size=150';
+        
+        // OPÇÃO 3: Avatar estilizado
+        // const defaultAvatarUrl = 'https://api.dicebear.com/7.x/initials/svg?seed=User&backgroundColor=0095F6';
+        
         // Criar perfil do usuário
         const { error: profileError } = await supabase
           .from('profiles')
@@ -121,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
             {
               id: data.user.id,
               username: username,
-              avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
+              avatar_url: defaultAvatarUrl,
               bio: ''
             }
           ]);
@@ -168,8 +193,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Verificar se usuário já está logado
     async function checkIfLoggedIn() {
-      const user = await getCurrentUser();
-      const isAnon = isAnonymousUser();
+      const { data: { user } } = await supabase.auth.getUser();
+      const isAnon = localStorage.getItem('anonymous_user') === 'true';
       
       if (user || isAnon) {
         window.location.href = 'feed.html';
