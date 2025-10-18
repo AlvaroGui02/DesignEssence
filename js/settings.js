@@ -245,52 +245,165 @@ document.addEventListener('DOMContentLoaded', () => {
       passwordMessage.classList.remove('hidden');
     }
 
-    // ===== EXCLUIR CONTA =====
+    // ===== MODAL DE EXCLUIR CONTA =====
+    const modalDeleteAccount = document.getElementById('modalDeleteAccount');
     const btnDeleteAccount = document.getElementById('btnDeleteAccount');
+    const btnCancelDelete = document.getElementById('btnCancelDelete');
+    const btnConfirmDelete = document.getElementById('btnConfirmDelete');
+    const closeModalDelete = document.getElementById('closeModalDelete');
+    const deleteMessage = document.getElementById('deleteMessage');
 
-    btnDeleteAccount.addEventListener('click', async () => {
-      const confirmDelete = confirm(
-        '⚠️ TEM CERTEZA?\n\n' +
-        'Esta ação é IRREVERSÍVEL!\n' +
-        'Sua conta, publicações e dados serão permanentemente excluídos.\n\n' +
-        'Digite "EXCLUIR" para confirmar:'
-      );
+    // Abrir modal
+    if (btnDeleteAccount) {
+      btnDeleteAccount.addEventListener('click', () => {
+        modalDeleteAccount.classList.remove('hidden');
+      });
+    }
 
-      if (confirmDelete) {
-        const confirmation = prompt('Digite "EXCLUIR" em letras maiúsculas para confirmar:');
-        
-        if (confirmation === 'EXCLUIR') {
-          try {
-            // Deletar publicações do usuário
+    // Fechar modal
+    if (closeModalDelete) {
+      closeModalDelete.addEventListener('click', () => {
+        modalDeleteAccount.classList.add('hidden');
+      });
+    }
+
+    if (btnCancelDelete) {
+      btnCancelDelete.addEventListener('click', () => {
+        modalDeleteAccount.classList.add('hidden');
+      });
+    }
+
+    // Fechar ao clicar fora
+    if (modalDeleteAccount) {
+      modalDeleteAccount.addEventListener('click', (e) => {
+        if (e.target === modalDeleteAccount) {
+          modalDeleteAccount.classList.add('hidden');
+        }
+      });
+    }
+
+    // CONFIRMAR EXCLUSÃO
+    if (btnConfirmDelete) {
+      btnConfirmDelete.addEventListener('click', async () => {
+        try {
+          showDeleteMessage('Excluindo conta...', 'success');
+          btnConfirmDelete.disabled = true;
+
+          // 1. Buscar todas as publicações do usuário
+          const { data: publications } = await supabase
+            .from('publications')
+            .select('id, image_url')
+            .eq('user_id', currentUser.id);
+
+          // 2. Deletar imagens das publicações do storage
+          if (publications && publications.length > 0) {
+            for (const pub of publications) {
+              try {
+                const imagePath = pub.image_url.split('/').slice(-2).join('/');
+                await supabase.storage
+                  .from('publications')
+                  .remove([imagePath]);
+              } catch (err) {
+                console.log('Erro ao deletar imagem:', err);
+              }
+            }
+
+            // 3. Deletar comentários das publicações
+            for (const pub of publications) {
+              await supabase
+                .from('comments')
+                .delete()
+                .eq('publication_id', pub.id);
+            }
+
+            // 4. Deletar likes das publicações
+            for (const pub of publications) {
+              await supabase
+                .from('likes')
+                .delete()
+                .eq('publication_id', pub.id);
+            }
+
+            // 5. Deletar as publicações
             await supabase
               .from('publications')
               .delete()
               .eq('user_id', currentUser.id);
-
-            // Deletar perfil
-            await supabase
-              .from('profiles')
-              .delete()
-              .eq('id', currentUser.id);
-
-            // Deletar conta de autenticação
-            // Nota: Isso requer permissões de admin no Supabase
-            // Por enquanto apenas deslogar
-            await supabase.auth.signOut();
-            localStorage.clear();
-            
-            alert('Conta excluída com sucesso!');
-            window.location.href = 'index.html';
-
-          } catch (error) {
-            console.error('Erro ao excluir conta:', error);
-            alert('Erro ao excluir conta: ' + error.message);
           }
-        } else {
-          alert('Exclusão cancelada.');
+
+          // 6. Deletar comentários feitos pelo usuário em outras publicações
+          await supabase
+            .from('comments')
+            .delete()
+            .eq('user_id', currentUser.id);
+
+          // 7. Deletar likes dados pelo usuário
+          await supabase
+            .from('likes')
+            .delete()
+            .eq('user_id', currentUser.id);
+
+          // 8. Deletar relacionamentos de seguidores
+          await supabase
+            .from('followers')
+            .delete()
+            .or(`follower_id.eq.${currentUser.id},following_id.eq.${currentUser.id}`);
+
+          // 9. Deletar avatar do storage (se não for o padrão)
+          try {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('avatar_url')
+              .eq('id', currentUser.id)
+              .single();
+
+            if (profile && profile.avatar_url && 
+                !profile.avatar_url.includes('avatar-default') && 
+                !profile.avatar_url.includes('ui-avatars') && 
+                !profile.avatar_url.includes('dicebear') &&
+                !profile.avatar_url.includes('placeholder')) {
+              const avatarPath = profile.avatar_url.split('/').slice(-2).join('/');
+              await supabase.storage
+                .from('avatars')
+                .remove([avatarPath]);
+            }
+          } catch (err) {
+            console.log('Erro ao deletar avatar:', err);
+          }
+
+          // 10. Deletar perfil do usuário
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .delete()
+            .eq('id', currentUser.id);
+
+          if (profileError) throw profileError;
+
+          showDeleteMessage('Conta excluída com sucesso!', 'success');
+
+          // Logout e redirecionar
+          await supabase.auth.signOut();
+          localStorage.clear();
+
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 2000);
+
+        } catch (error) {
+          console.error('Erro ao excluir conta:', error);
+          showDeleteMessage('Erro ao excluir conta: ' + error.message, 'error');
+          btnConfirmDelete.disabled = false;
         }
+      });
+    }
+
+    function showDeleteMessage(message, type) {
+      if (deleteMessage) {
+        deleteMessage.textContent = message;
+        deleteMessage.className = `message ${type}`;
+        deleteMessage.classList.remove('hidden');
       }
-    });
+    }
 
     // ===== TEMA (CLARO/ESCURO) =====
     const themeBtns = document.querySelectorAll('.theme-btn');

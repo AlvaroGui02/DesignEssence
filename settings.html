@@ -382,9 +382,44 @@
     </div>
   </div>
 
+<!-- Modal de Confirmar Exclusão de Conta -->
+  <div id="modalDeleteAccount" class="modal hidden">
+    <div class="modal-content modal-delete">
+      <div class="modal-header">
+        <h2>⚠️ Excluir Conta</h2>
+        <button class="modal-close" id="closeModalDelete">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <p class="delete-warning">
+          <strong>Você tem certeza que deseja excluir sua conta?</strong>
+        </p>
+        <p class="delete-description">
+          Esta ação é <strong>irreversível</strong> e irá apagar permanentemente:
+        </p>
+        <ul class="delete-list">
+          <li>✗ Todas as suas publicações</li>
+          <li>✗ Todos os seus comentários</li>
+          <li>✗ Todas as suas curtidas</li>
+          <li>✗ Seus seguidores e seguindo</li>
+          <li>✗ Seu perfil completo</li>
+        </ul>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" id="btnCancelDelete">Cancelar</button>
+        <button type="button" class="btn-delete-confirm" id="btnConfirmDelete">Sim, excluir minha conta</button>
+      </div>
+
+      <div id="deleteMessage" class="message hidden"></div>
+    </div>
+  </div>
+
+
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase.js"></script>
   <script src="js/settings.js"></script>
+  
 </body>
 </html>
