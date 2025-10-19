@@ -95,6 +95,20 @@
   position: relative;
 }
 
+.user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  object-fit: cover;
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.user-avatar:hover {
+  border-color: #DBDBDB;
+}
+
 .dropdown-menu {
   position: absolute;
   top: calc(100% + 10px);
@@ -105,11 +119,11 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   min-width: 200px;
   overflow: hidden;
-  z-index: 10000; /* ⬅️ MAIOR QUE NAVBAR E MODAL */
+  z-index: 10000; /* ⬅️ MAIOR que tudo */
 }
 
 .dropdown-menu.hidden {
-  display: none;
+  display: none !important; /* ⬅️ FORÇA ocultar */
 }
 
 .dropdown-item {

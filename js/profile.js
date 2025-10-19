@@ -21,8 +21,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const profilePostsGrid = document.getElementById('profilePostsGrid');
     const loadingProfile = document.getElementById('loadingProfile');
     const emptyProfile = document.getElementById('emptyProfile');
-
+    
+    // Verificar se está visualizando outro perfil
+    const urlParams = new URLSearchParams(window.location.search);
+    const viewingUserId = urlParams.get('user');
+    
     let currentUser = null;
+    let isOwnProfile = true;
+    let profileUserId = null; // ID do perfil sendo visualizado
 
     // Verificar autenticação
     async function checkAuth() {
@@ -34,59 +40,93 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       currentUser = user;
+      
+      // Se está visualizando outro perfil
+      if (viewingUserId && viewingUserId !== user.id) {
+        isOwnProfile = false;
+        profileUserId = viewingUserId;
+      } else {
+        isOwnProfile = true;
+        profileUserId = user.id;
+      }
+      
       loadProfile();
     }
 
     // Carregar perfil
     async function loadProfile() {
       try {
-        // Buscar dados do perfil
+        // Buscar dados do perfil (do usuário visualizado ou do próprio)
         const { data: profile } = await supabase
           .from('profiles')
           .select('*')
-          .eq('id', currentUser.id)
+          .eq('id', profileUserId)
           .single();
 
         if (profile) {
-          userAvatar.src = profile.avatar_url;
-          profileAvatar.src = profile.avatar_url;
-          profileUsername.textContent = profile.username;
-          profileBio.textContent = profile.bio || 'Sem biografia';
+          // Sempre carregar o avatar do usuário logado no header
+          if (currentUser) {
+            const { data: currentProfile } = await supabase
+              .from('profiles')
+              .select('avatar_url')
+              .eq('id', currentUser.id)
+              .single();
+            if (currentProfile && userAvatar) {
+              userAvatar.src = currentProfile.avatar_url;
+            }
+          }
+          
+          // Carregar dados do perfil visualizado
+          if (profileAvatar) profileAvatar.src = profile.avatar_url;
+          if (profileUsername) profileUsername.textContent = profile.username;
+          if (profileBio) profileBio.textContent = profile.bio || 'Sem biografia';
+          
+          // Ocultar botão "Editar Perfil" se não for o próprio perfil
+          const btnEditProfile = document.getElementById('btnEditProfile');
+          if (btnEditProfile) {
+            if (isOwnProfile) {
+              btnEditProfile.style.display = 'inline-block';
+            } else {
+              btnEditProfile.style.display = 'none';
+            }
+          }
         }
 
-        // Buscar publicações do usuário
+        // Buscar publicações do perfil visualizado
         const { data: posts } = await supabase
           .from('publications')
           .select('*')
-          .eq('user_id', currentUser.id)
+          .eq('user_id', profileUserId)
           .order('created_at', { ascending: false });
 
         // Buscar contagem de seguidores
         const { count: followersCount } = await supabase
           .from('followers')
           .select('*', { count: 'exact', head: true })
-          .eq('following_id', currentUser.id);
+          .eq('following_id', profileUserId);
 
         // Buscar contagem de quem está seguindo
         const { count: followingCount } = await supabase
           .from('followers')
           .select('*', { count: 'exact', head: true })
-          .eq('follower_id', currentUser.id);
+          .eq('follower_id', profileUserId);
 
-        loadingProfile.classList.add('hidden');
+        if (loadingProfile) loadingProfile.classList.add('hidden');
 
         // Atualizar estatísticas
-        postsCount.textContent = posts?.length || 0;
-        document.getElementById('followersCount').textContent = followersCount || 0;
-        document.getElementById('followingCount').textContent = followingCount || 0;
+        if (postsCount) postsCount.textContent = posts?.length || 0;
+        const followersCountEl = document.getElementById('followersCount');
+        const followingCountEl = document.getElementById('followingCount');
+        if (followersCountEl) followersCountEl.textContent = followersCount || 0;
+        if (followingCountEl) followingCountEl.textContent = followingCount || 0;
 
         if (!posts || posts.length === 0) {
-          emptyProfile.classList.remove('hidden');
+          if (emptyProfile) emptyProfile.classList.remove('hidden');
           return;
         }
 
         // Limpar grid antes de renderizar
-        profilePostsGrid.innerHTML = '';
+        if (profilePostsGrid) profilePostsGrid.innerHTML = '';
 
         // Renderizar posts
         posts.forEach(post => {
@@ -101,30 +141,36 @@ document.addEventListener('DOMContentLoaded', () => {
             openPostModal(post.id);
           });
           
-          profilePostsGrid.appendChild(postItem);
+          if (profilePostsGrid) profilePostsGrid.appendChild(postItem);
         });
 
       } catch (error) {
         console.error('Erro ao carregar perfil:', error);
-        loadingProfile.classList.add('hidden');
+        if (loadingProfile) loadingProfile.classList.add('hidden');
       }
     }
 
-    // Dropdown Menu
+    // ===== DROPDOWN MENU =====
     const dropdownMenu = document.getElementById('dropdownMenu');
     const btnLogout = document.getElementById('btnLogout');
 
     // Toggle dropdown ao clicar no avatar
-    if (userAvatar) {
+    if (userAvatar && dropdownMenu) {
       userAvatar.addEventListener('click', (e) => {
         e.stopPropagation();
+        console.log('🔘 Avatar clicado!'); // Debug
         dropdownMenu.classList.toggle('hidden');
+      });
+    } else {
+      console.error('❌ Elementos não encontrados:', { 
+        userAvatar: !!userAvatar, 
+        dropdownMenu: !!dropdownMenu 
       });
     }
 
     // Fechar dropdown ao clicar fora
     document.addEventListener('click', (e) => {
-      if (!dropdownMenu.contains(e.target) && e.target !== userAvatar) {
+      if (dropdownMenu && !dropdownMenu.contains(e.target) && e.target !== userAvatar) {
         dropdownMenu.classList.add('hidden');
       }
     });
@@ -136,9 +182,11 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.clear();
         window.location.href = 'index.html';
       });
+    } else {
+      console.error('❌ Botão de logout não encontrado');
     }
 
-    // Modal de Editar Perfil
+    // Modal de Editar Perfil (só funciona se for o próprio perfil)
     const modalEditProfile = document.getElementById('modalEditProfile');
     const btnEditProfile = document.getElementById('btnEditProfile');
     const closeModalEdit = document.getElementById('closeModalEdit');
@@ -157,6 +205,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Abrir modal de edição
     if (btnEditProfile) {
       btnEditProfile.addEventListener('click', async () => {
+        if (!isOwnProfile) return; // Só permite editar o próprio perfil
+        
         const { data: profile } = await supabase
           .from('profiles')
           .select('*')
@@ -165,25 +215,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (profile) {
           currentProfile = profile;
-          editAvatar.src = profile.avatar_url;
-          editUsername.value = profile.username;
-          editBio.value = profile.bio || '';
-          bioCharCount.textContent = (profile.bio || '').length;
+          if (editAvatar) editAvatar.src = profile.avatar_url;
+          if (editUsername) editUsername.value = profile.username;
+          if (editBio) editBio.value = profile.bio || '';
+          if (bioCharCount) bioCharCount.textContent = (profile.bio || '').length;
         }
 
-        modalEditProfile.classList.remove('hidden');
+        if (modalEditProfile) modalEditProfile.classList.remove('hidden');
       });
     }
 
     // Fechar modal
-    if (closeModalEdit) {
+    if (closeModalEdit && modalEditProfile) {
       closeModalEdit.addEventListener('click', () => {
         modalEditProfile.classList.add('hidden');
         newAvatarFile = null;
       });
     }
 
-    if (btnCancelEdit) {
+    if (btnCancelEdit && modalEditProfile) {
       btnCancelEdit.addEventListener('click', () => {
         modalEditProfile.classList.add('hidden');
         newAvatarFile = null;
@@ -215,7 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
           newAvatarFile = file;
           const reader = new FileReader();
           reader.onload = (e) => {
-            editAvatar.src = e.target.result;
+            if (editAvatar) editAvatar.src = e.target.result;
           };
           reader.readAsDataURL(file);
         }
@@ -227,8 +277,8 @@ document.addEventListener('DOMContentLoaded', () => {
       formEditProfile.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const newUsername = editUsername.value.trim();
-        const newBio = editBio.value.trim();
+        const newUsername = editUsername ? editUsername.value.trim() : '';
+        const newBio = editBio ? editBio.value.trim() : '';
 
         if (newUsername.length < 3) {
           showEditMessage('Nome de usuário deve ter pelo menos 3 caracteres', 'error');
@@ -295,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
           showEditMessage('Perfil atualizado com sucesso!', 'success');
 
           setTimeout(() => {
-            modalEditProfile.classList.add('hidden');
+            if (modalEditProfile) modalEditProfile.classList.add('hidden');
             newAvatarFile = null;
             location.reload();
           }, 1500);
@@ -374,89 +424,91 @@ document.addEventListener('DOMContentLoaded', () => {
         const isOwner = currentUser && post.user_id === currentUser.id;
 
         // Renderizar modal
-        viewPostContent.innerHTML = `
-          <img src="${post.image_url}" alt="${post.title}" class="view-post-image">
-          
-          <div class="view-post-sidebar">
-            <div class="view-post-header">
-              <img src="${post.profiles.avatar_url}" alt="${post.profiles.username}" class="view-post-avatar">
-              <span class="view-post-author">${post.profiles.username}</span>
-              
-              ${isOwner ? `
-                <div class="view-post-options">
-                  <button class="btn-view-options">⋮</button>
-                  <div class="view-options-menu hidden">
-                    <button class="view-option-item delete" data-action="delete">
-                      <span class="icon">🗑️</span>
-                      Excluir publicação
-                    </button>
-                  </div>
-                </div>
-              ` : ''}
-            </div>
-
-            <div class="view-post-comments">
-              <div class="view-comment">
-                <img src="${post.profiles.avatar_url}" alt="${post.profiles.username}" class="view-comment-avatar">
-                <div class="view-comment-content">
-                  <div>
-                    <span class="view-comment-username">${post.profiles.username}</span>
-                    <span class="view-comment-text">${post.title}</span>
-                  </div>
-                  ${post.description ? `<div class="view-comment-text" style="margin-top: 8px;">${post.description}</div>` : ''}
-                  <div class="view-comment-date">${formatDate(post.created_at)}</div>
-                </div>
-              </div>
-
-              ${comments && comments.length > 0 ? comments.map(c => {
-                const isCommentOwner = currentUser && c.user_id === currentUser.id;
-                return `
-                  <div class="view-comment" data-comment-id="${c.id}">
-                    <img src="${c.profiles.avatar_url}" alt="${c.profiles.username}" class="view-comment-avatar">
-                    <div class="view-comment-content">
-                      <div>
-                        <span class="view-comment-username">${c.profiles.username}</span>
-                        <span class="view-comment-text">${c.content}</span>
-                      </div>
-                      <div class="view-comment-date">${formatDate(c.created_at)}</div>
+        if (viewPostContent) {
+          viewPostContent.innerHTML = `
+            <img src="${post.image_url}" alt="${post.title}" class="view-post-image">
+            
+            <div class="view-post-sidebar">
+              <div class="view-post-header">
+                <img src="${post.profiles.avatar_url}" alt="${post.profiles.username}" class="view-post-avatar">
+                <span class="view-post-author">${post.profiles.username}</span>
+                
+                ${isOwner ? `
+                  <div class="view-post-options">
+                    <button class="btn-view-options">⋮</button>
+                    <div class="view-options-menu hidden">
+                      <button class="view-option-item delete" data-action="delete">
+                        <span class="icon">🗑️</span>
+                        Excluir publicação
+                      </button>
                     </div>
-                    ${isCommentOwner ? `
-                      <div class="comment-options">
-                        <button class="btn-comment-options">⋮</button>
-                        <div class="comment-options-menu hidden">
-                          <button class="comment-option-item delete" data-comment-id="${c.id}">
-                            <span class="icon">🗑️</span>
-                            Excluir comentário
-                          </button>
-                        </div>
-                      </div>
-                    ` : ''}
                   </div>
-                `;
-              }).join('') : ''}
-            </div>
-
-            <div class="view-post-actions">
-              <div class="view-action-buttons">
-                <button class="view-action-btn view-btn-like ${userLiked ? 'liked' : ''}" data-post-id="${post.id}">
-                  ${userLiked ? '❤️' : '🤍'}
-                </button>
-                <button class="view-action-btn">💬</button>
+                ` : ''}
               </div>
 
-              <div class="view-post-likes">${likesCount || 0} curtida${likesCount !== 1 ? 's' : ''}</div>
-              <div class="view-post-date">${formatDate(post.created_at)}</div>
+              <div class="view-post-comments">
+                <div class="view-comment">
+                  <img src="${post.profiles.avatar_url}" alt="${post.profiles.username}" class="view-comment-avatar">
+                  <div class="view-comment-content">
+                    <div>
+                      <span class="view-comment-username">${post.profiles.username}</span>
+                      <span class="view-comment-text">${post.title}</span>
+                    </div>
+                    ${post.description ? `<div class="view-comment-text" style="margin-top: 8px;">${post.description}</div>` : ''}
+                    <div class="view-comment-date">${formatDate(post.created_at)}</div>
+                  </div>
+                </div>
 
-              <form class="view-comment-form" data-post-id="${post.id}">
-                <input type="text" placeholder="Adicione um comentário..." class="view-comment-input">
-                <button type="submit" class="view-btn-send">Publicar</button>
-              </form>
+                ${comments && comments.length > 0 ? comments.map(c => {
+                  const isCommentOwner = currentUser && c.user_id === currentUser.id;
+                  return `
+                    <div class="view-comment" data-comment-id="${c.id}">
+                      <img src="${c.profiles.avatar_url}" alt="${c.profiles.username}" class="view-comment-avatar">
+                      <div class="view-comment-content">
+                        <div>
+                          <span class="view-comment-username">${c.profiles.username}</span>
+                          <span class="view-comment-text">${c.content}</span>
+                        </div>
+                        <div class="view-comment-date">${formatDate(c.created_at)}</div>
+                      </div>
+                      ${isCommentOwner ? `
+                        <div class="comment-options">
+                          <button class="btn-comment-options">⋮</button>
+                          <div class="comment-options-menu hidden">
+                            <button class="comment-option-item delete" data-comment-id="${c.id}">
+                              <span class="icon">🗑️</span>
+                              Excluir comentário
+                            </button>
+                          </div>
+                        </div>
+                      ` : ''}
+                    </div>
+                  `;
+                }).join('') : ''}
+              </div>
+
+              <div class="view-post-actions">
+                <div class="view-action-buttons">
+                  <button class="view-action-btn view-btn-like ${userLiked ? 'liked' : ''}" data-post-id="${post.id}">
+                    ${userLiked ? '❤️' : '🤍'}
+                  </button>
+                  <button class="view-action-btn">💬</button>
+                </div>
+
+                <div class="view-post-likes">${likesCount || 0} curtida${likesCount !== 1 ? 's' : ''}</div>
+                <div class="view-post-date">${formatDate(post.created_at)}</div>
+
+                <form class="view-comment-form" data-post-id="${post.id}">
+                  <input type="text" placeholder="Adicione um comentário..." class="view-comment-input">
+                  <button type="submit" class="view-btn-send">Publicar</button>
+                </form>
+              </div>
             </div>
-          </div>
-        `;
+          `;
+        }
 
         // Menu de opções do POST (se for o dono)
-        if (isOwner) {
+        if (isOwner && viewPostContent) {
           const btnViewOptions = viewPostContent.querySelector('.btn-view-options');
           const viewOptionsMenu = viewPostContent.querySelector('.view-options-menu');
           const deleteBtn = viewPostContent.querySelector('[data-action="delete"]');
@@ -495,7 +547,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   .from('publications')
                   .remove([imagePath]);
 
-                modalViewPost.classList.add('hidden');
+                if (modalViewPost) modalViewPost.classList.add('hidden');
                 loadProfile();
 
                 alert('Publicação excluída com sucesso!');
@@ -509,51 +561,53 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Menu de opções dos COMENTÁRIOS
-        const commentOptionsButtons = viewPostContent.querySelectorAll('.btn-comment-options');
-        commentOptionsButtons.forEach(btn => {
-          const commentOptionsMenu = btn.nextElementSibling;
-          
-          if (commentOptionsMenu) {
-            btn.addEventListener('click', (e) => {
-              e.stopPropagation();
-              
-              // Fechar outros menus abertos
-              document.querySelectorAll('.comment-options-menu').forEach(menu => {
-                if (menu !== commentOptionsMenu) {
-                  menu.classList.add('hidden');
-                }
+        if (viewPostContent) {
+          const commentOptionsButtons = viewPostContent.querySelectorAll('.btn-comment-options');
+          commentOptionsButtons.forEach(btn => {
+            const commentOptionsMenu = btn.nextElementSibling;
+            
+            if (commentOptionsMenu) {
+              btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                
+                // Fechar outros menus abertos
+                document.querySelectorAll('.comment-options-menu').forEach(menu => {
+                  if (menu !== commentOptionsMenu) {
+                    menu.classList.add('hidden');
+                  }
+                });
+                
+                commentOptionsMenu.classList.toggle('hidden');
               });
-              
-              commentOptionsMenu.classList.toggle('hidden');
-            });
 
-            // Botão de excluir comentário
-            const deleteCommentBtn = commentOptionsMenu.querySelector('.comment-option-item.delete');
-            if (deleteCommentBtn) {
-              deleteCommentBtn.addEventListener('click', async () => {
-                const commentId = deleteCommentBtn.getAttribute('data-comment-id');
-                const confirmDelete = confirm('Tem certeza que deseja excluir este comentário?');
-                if (!confirmDelete) return;
+              // Botão de excluir comentário
+              const deleteCommentBtn = commentOptionsMenu.querySelector('.comment-option-item.delete');
+              if (deleteCommentBtn) {
+                deleteCommentBtn.addEventListener('click', async () => {
+                  const commentId = deleteCommentBtn.getAttribute('data-comment-id');
+                  const confirmDelete = confirm('Tem certeza que deseja excluir este comentário?');
+                  if (!confirmDelete) return;
 
-                try {
-                  const { error } = await supabase
-                    .from('comments')
-                    .delete()
-                    .eq('id', commentId);
+                  try {
+                    const { error } = await supabase
+                      .from('comments')
+                      .delete()
+                      .eq('id', commentId);
 
-                  if (error) throw error;
+                    if (error) throw error;
 
-                  // Recarregar modal
-                  openPostModal(postId);
+                    // Recarregar modal
+                    openPostModal(postId);
 
-                } catch (error) {
-                  console.error('Erro ao excluir comentário:', error);
-                  alert('Erro ao excluir comentário: ' + error.message);
-                }
-              });
+                  } catch (error) {
+                    console.error('Erro ao excluir comentário:', error);
+                    alert('Erro ao excluir comentário: ' + error.message);
+                  }
+                });
+              }
             }
-          }
-        });
+          });
+        }
 
         // Fechar menus ao clicar fora
         document.addEventListener('click', (e) => {
@@ -565,29 +619,33 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Event listener para LIKE
-        const likeBtn = viewPostContent.querySelector('.view-btn-like');
-        if (likeBtn) {
-          likeBtn.addEventListener('click', async () => {
-            await toggleLike(postId);
-            openPostModal(postId);
-          });
+        if (viewPostContent) {
+          const likeBtn = viewPostContent.querySelector('.view-btn-like');
+          if (likeBtn) {
+            likeBtn.addEventListener('click', async () => {
+              await toggleLike(postId);
+              openPostModal(postId);
+            });
+          }
         }
 
         // Event listener para COMENTÁRIO
-        const commentForm = viewPostContent.querySelector('.view-comment-form');
-        if (commentForm) {
-          commentForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const input = commentForm.querySelector('.view-comment-input');
-            if (input && input.value.trim()) {
-              await addComment(postId, input.value.trim());
-              openPostModal(postId);
-            }
-          });
+        if (viewPostContent) {
+          const commentForm = viewPostContent.querySelector('.view-comment-form');
+          if (commentForm) {
+            commentForm.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              const input = commentForm.querySelector('.view-comment-input');
+              if (input && input.value.trim()) {
+                await addComment(postId, input.value.trim());
+                openPostModal(postId);
+              }
+            });
+          }
         }
 
         // Abrir modal
-        modalViewPost.classList.remove('hidden');
+        if (modalViewPost) modalViewPost.classList.remove('hidden');
 
       } catch (error) {
         console.error('Erro ao abrir post:', error);
@@ -595,7 +653,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Fechar modal
-    if (closeViewModal) {
+    if (closeViewModal && modalViewPost) {
       closeViewModal.addEventListener('click', () => {
         modalViewPost.classList.add('hidden');
       });
@@ -665,7 +723,19 @@ document.addEventListener('DOMContentLoaded', () => {
       return date.toLocaleDateString('pt-BR').toUpperCase();
     }
 
-    // Inicializar
+// Inicializar
     checkAuth();
+
+    // ===== ABRIR POST AUTOMATICAMENTE SE VIR DA BUSCA =====
+    const postIdFromUrl = urlParams.get('post');
+    
+    if (postIdFromUrl) {
+      // Aguardar o perfil carregar antes de abrir o modal
+      setTimeout(() => {
+        openPostModal(postIdFromUrl);
+        // Limpar URL sem recarregar a página
+        window.history.replaceState({}, '', `profile.html?user=${profileUserId}`);
+      }, 1000);
+    }
   });
 });

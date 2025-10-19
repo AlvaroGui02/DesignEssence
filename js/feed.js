@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         loadingFeed.classList.remove('hidden');
         emptyFeed.classList.add('hidden');
-        feedPosts.innerHTML = '';
+        feedPosts.innerHTML = ''; // ⬅️ LIMPAR O FEED SEMPRE ANTES
 
         const { data: posts, error } = await supabase
           .from('publications')
@@ -250,16 +250,12 @@ document.addEventListener('DOMContentLoaded', () => {
         allPosts = posts;
         console.log(`✅ ${posts.length} posts carregados`);
 
-        const renderedIds = new Set();
-
+        // ⬅️ RENDERIZAR POSTS SEM VERIFICAÇÃO DUPLICADA
         for (const post of posts) {
-          if (!renderedIds.has(post.id)) {
-            await renderPost(post);
-            renderedIds.add(post.id);
-          }
+          await renderPost(post);
         }
 
-        console.log(`✅ ${renderedIds.size} posts únicos renderizados`);
+        console.log(`✅ Posts renderizados com sucesso`);
 
       } catch (error) {
         console.error('💥 Erro fatal:', error);
@@ -269,8 +265,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function renderPost(post) {
       try {
+        // ⬅️ VERIFICAR SE JÁ EXISTE ANTES DE CRIAR
         if (document.querySelector(`[data-post-id="${post.id}"]`)) {
-          console.log(`⚠️ Post ${post.id} já existe, pulando...`);
+          console.log(`⚠️ Post ${post.id} já renderizado, pulando...`);
           return;
         }
 
@@ -326,6 +323,11 @@ document.addEventListener('DOMContentLoaded', () => {
             ` : ''}
           </div>
           
+          <!-- TÍTULO DA PUBLICAÇÃO -->
+          <div class="post-title-section">
+            <h3 class="post-title-text">${post.title}</h3>
+          </div>
+          
           <img src="${post.image_url}" alt="${post.title}" class="post-image">
           
           <div class="post-actions">
@@ -337,11 +339,12 @@ document.addEventListener('DOMContentLoaded', () => {
           
           <div class="post-info">
             <div class="post-likes">${likesCount || 0} curtida${likesCount !== 1 ? 's' : ''}</div>
-            <div class="post-caption">
-              <span class="username">${post.profiles.username}</span>
-              <span class="post-title">${post.title}</span>
-            </div>
-            ${post.description ? `<div class="post-description">${post.description}</div>` : ''}
+            ${post.description ? `
+              <div class="post-caption">
+                <span class="username">${post.profiles.username}</span>
+                <span class="post-description">${post.description}</span>
+              </div>
+            ` : ''}
             ${comments && comments.length > 0 ? comments.map(c => `
               <div class="post-caption">
                 <span class="username">${c.profiles.username}</span>
@@ -357,6 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </form>
         `;
 
+        // ⬅️ ADICIONAR AO FEED APENAS UMA VEZ
         if (feedPosts) {
           feedPosts.appendChild(postCard);
         }
@@ -370,6 +374,14 @@ document.addEventListener('DOMContentLoaded', () => {
           if (btnOptions && optionsMenu) {
             btnOptions.addEventListener('click', (e) => {
               e.stopPropagation();
+              
+              // Fechar outros menus abertos
+              document.querySelectorAll('.options-menu').forEach(menu => {
+                if (menu !== optionsMenu) {
+                  menu.classList.add('hidden');
+                }
+              });
+              
               optionsMenu.classList.toggle('hidden');
             });
 

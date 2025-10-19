@@ -20,21 +20,21 @@
       <div class="navbar-actions">
         <button id="btnNewPost" class="btn-new-post" onclick="window.location.href='feed.html'">Nova Publicação</button>
         <div class="user-menu">
-          <img id="userAvatar" src="" alt="Avatar" class="user-avatar">
-          <!-- Dropdown Menu -->
-          <div id="dropdownMenu" class="dropdown-menu hidden">
-            <a href="profile.html" class="dropdown-item">
-              <span class="icon">👤</span> Perfil
-            </a>
-            <a href="settings.html" class="dropdown-item">
-              <span class="icon">⚙️</span> Configurações
-            </a>
-            <div class="dropdown-divider"></div>
-            <button id="btnLogout" class="dropdown-item logout">
-              <span class="icon">🚪</span> Sair
-            </button>
-          </div>
-        </div>
+  <img id="userAvatar" src="" alt="Avatar" class="user-avatar">
+  <!-- Dropdown Menu -->
+  <div id="dropdownMenu" class="dropdown-menu hidden">
+    <a href="feed.html" class="dropdown-item">
+      <span class="icon">🏠</span> Feed
+    </a>
+    <a href="settings.html" class="dropdown-item">
+      <span class="icon">⚙️</span> Configurações
+    </a>
+    <div class="dropdown-divider"></div>
+    <button id="btnLogout" class="dropdown-item logout">
+      <span class="icon">🚪</span> Sair
+    </button>
+  </div>
+</div>
       </div>
     </div>
   </header>
@@ -148,9 +148,10 @@
     </div>
   </div>
 
-  <!-- Scripts (UMA VEZ SÓ) -->
+<!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase.js"></script>
   <script src="js/profile.js"></script>
+  <script src="js/search.js"></script> 
 </body>
 </html>
