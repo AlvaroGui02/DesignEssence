@@ -20,21 +20,21 @@
       <div class="navbar-actions">
         <button id="btnNewPost" class="btn-new-post" onclick="window.location.href='feed.html'">Nova Publicação</button>
         <div class="user-menu">
-  <img id="userAvatar" src="" alt="Avatar" class="user-avatar">
-  <!-- Dropdown Menu -->
-  <div id="dropdownMenu" class="dropdown-menu hidden">
-    <a href="profile.html" class="dropdown-item">
-      <span class="icon">👤</span> Perfil
-    </a>
-    <a href="feed.html" class="dropdown-item">
-      <span class="icon">🏠</span> Feed
-    </a>
-    <div class="dropdown-divider"></div>
-    <button id="btnLogout" class="dropdown-item logout">
-      <span class="icon">🚪</span> Sair
-    </button>
-  </div>
-</div>
+          <img id="userAvatar" src="" alt="Avatar" class="user-avatar">
+          <!-- Dropdown Menu -->
+          <div id="dropdownMenu" class="dropdown-menu hidden">
+            <a href="profile.html" class="dropdown-item">
+              <span class="icon">👤</span> Perfil
+            </a>
+            <a href="feed.html" class="dropdown-item">
+              <span class="icon">🏠</span> Feed
+            </a>
+            <div class="dropdown-divider"></div>
+            <button id="btnLogout" class="dropdown-item logout">
+              <span class="icon">🚪</span> Sair
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </header>
@@ -77,14 +77,6 @@
             <p id="userEmail" class="setting-value">carregando@email.com</p>
           </div>
           <button id="btnChangeEmail" class="btn-secondary">Alterar</button>
-        </div>
-
-        <div class="setting-item">
-          <div class="setting-info">
-            <label class="setting-label">Nome de usuário</label>
-            <p id="userName" class="setting-value">@usuario</p>
-          </div>
-          <button onclick="window.location.href='profile.html'" class="btn-secondary">Editar</button>
         </div>
 
         <div class="setting-item danger-zone">
@@ -382,7 +374,7 @@
     </div>
   </div>
 
-<!-- Modal de Confirmar Exclusão de Conta -->
+  <!-- Modal de Confirmar Exclusão de Conta -->
   <div id="modalDeleteAccount" class="modal hidden">
     <div class="modal-content modal-delete">
       <div class="modal-header">
@@ -415,10 +407,10 @@
     </div>
   </div>
 
-<!-- Scripts -->
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase.js"></script>
   <script src="js/settings.js"></script>
-  <script src="js/search.js"></script> <!-- ⬅️ ADICIONE -->
+  <script src="js/search.js"></script>
 </body>
 </html>
