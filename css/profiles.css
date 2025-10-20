@@ -955,3 +955,40 @@ body {
 .comment-option-item .icon {
   font-size: 16px;
 }
+
+
+/* ===== BOTÃO DE SEGUIR ===== */
+.btn-follow-user {
+  padding: 8px 24px;
+  background: #0095F6;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-follow-user:hover {
+  background: #1877F2;
+}
+
+.btn-follow-user:active {
+  transform: scale(0.98);
+}
+
+.btn-follow-user.following {
+  background: #FFFFFF;
+  color: #262626;
+  border: 1px solid #DBDBDB;
+}
+
+.btn-follow-user.following:hover {
+  background: #FAFAFA;
+  border-color: #A8A8A8;
+}
+
+.btn-follow-user.hidden {
+  display: none;
+}

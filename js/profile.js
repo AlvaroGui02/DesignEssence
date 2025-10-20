@@ -1,6 +1,6 @@
 // Aguardar Supabase carregar
 document.addEventListener('DOMContentLoaded', () => {
-  
+
   function waitForSupabase(callback) {
     if (window.supabaseClient) {
       callback();
@@ -21,11 +21,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const profilePostsGrid = document.getElementById('profilePostsGrid');
     const loadingProfile = document.getElementById('loadingProfile');
     const emptyProfile = document.getElementById('emptyProfile');
-    
+
     // Verificar se está visualizando outro perfil
     const urlParams = new URLSearchParams(window.location.search);
     const viewingUserId = urlParams.get('user');
-    
+
     let currentUser = null;
     let isOwnProfile = true;
     let profileUserId = null; // ID do perfil sendo visualizado
@@ -33,14 +33,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Verificar autenticação
     async function checkAuth() {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         window.location.href = 'index.html';
         return;
       }
 
       currentUser = user;
-      
+
       // Se está visualizando outro perfil
       if (viewingUserId && viewingUserId !== user.id) {
         isOwnProfile = false;
@@ -49,8 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
         isOwnProfile = true;
         profileUserId = user.id;
       }
-      
+
       loadProfile();
+      updateDropdownMenu(); // Atualizar dropdown após definir isOwnProfile
     }
 
     // Carregar perfil
@@ -75,19 +76,41 @@ document.addEventListener('DOMContentLoaded', () => {
               userAvatar.src = currentProfile.avatar_url;
             }
           }
-          
+
           // Carregar dados do perfil visualizado
           if (profileAvatar) profileAvatar.src = profile.avatar_url;
           if (profileUsername) profileUsername.textContent = profile.username;
           if (profileBio) profileBio.textContent = profile.bio || 'Sem biografia';
-          
-          // Ocultar botão "Editar Perfil" se não for o próprio perfil
+
+          // Gerenciar botões de Editar Perfil e Seguir
           const btnEditProfile = document.getElementById('btnEditProfile');
-          if (btnEditProfile) {
-            if (isOwnProfile) {
-              btnEditProfile.style.display = 'inline-block';
-            } else {
-              btnEditProfile.style.display = 'none';
+          const btnFollowUser = document.getElementById('btnFollowUser');
+
+          if (isOwnProfile) {
+            // É o próprio perfil - mostrar botão Editar
+            if (btnEditProfile) btnEditProfile.style.display = 'inline-block';
+            if (btnFollowUser) btnFollowUser.classList.add('hidden');
+          } else {
+            // É perfil de outro usuário - mostrar botão Seguir
+            if (btnEditProfile) btnEditProfile.style.display = 'none';
+            if (btnFollowUser) {
+              btnFollowUser.classList.remove('hidden');
+
+              // Verificar se já está seguindo
+              const { data: followData } = await supabase
+                .from('followers')
+                .select('id')
+                .eq('follower_id', currentUser.id)
+                .eq('following_id', profileUserId)
+                .single();
+
+              if (followData) {
+                btnFollowUser.textContent = 'Seguindo';
+                btnFollowUser.classList.add('following');
+              } else {
+                btnFollowUser.textContent = 'Seguir';
+                btnFollowUser.classList.remove('following');
+              }
             }
           }
         }
@@ -135,18 +158,97 @@ document.addEventListener('DOMContentLoaded', () => {
           postItem.innerHTML = `
             <img src="${post.image_url}" alt="${post.title}">
           `;
-          
+
           // ADICIONAR EVENTO DE CLIQUE
           postItem.addEventListener('click', () => {
             openPostModal(post.id);
           });
-          
+
           if (profilePostsGrid) profilePostsGrid.appendChild(postItem);
         });
 
       } catch (error) {
         console.error('Erro ao carregar perfil:', error);
         if (loadingProfile) loadingProfile.classList.add('hidden');
+      }
+    }
+
+    // ===== SISTEMA DE SEGUIR/DEIXAR DE SEGUIR =====
+    const btnFollowUser = document.getElementById('btnFollowUser');
+
+    if (btnFollowUser) {
+      btnFollowUser.addEventListener('click', async () => {
+        if (!currentUser) {
+          alert('Você precisa estar logado para seguir usuários!');
+          return;
+        }
+
+        try {
+          btnFollowUser.disabled = true;
+
+          // Verificar se já está seguindo
+          const { data: existingFollow } = await supabase
+            .from('followers')
+            .select('id')
+            .eq('follower_id', currentUser.id)
+            .eq('following_id', profileUserId)
+            .single();
+
+          if (existingFollow) {
+            // Deixar de seguir
+            const { error } = await supabase
+              .from('followers')
+              .delete()
+              .eq('id', existingFollow.id);
+
+            if (error) throw error;
+
+            btnFollowUser.textContent = 'Seguir';
+            btnFollowUser.classList.remove('following');
+
+            console.log('✅ Deixou de seguir');
+          } else {
+            // Seguir
+            const { error } = await supabase
+              .from('followers')
+              .insert([{
+                follower_id: currentUser.id,
+                following_id: profileUserId
+              }]);
+
+            if (error) throw error;
+
+            btnFollowUser.textContent = 'Seguindo';
+            btnFollowUser.classList.add('following');
+
+            console.log('✅ Começou a seguir');
+          }
+
+          // Recarregar contagem de seguidores
+          loadProfile();
+
+        } catch (error) {
+          console.error('Erro ao seguir/deixar de seguir:', error);
+          alert('Erro ao processar ação: ' + error.message);
+        } finally {
+          btnFollowUser.disabled = false;
+        }
+      });
+    }
+
+    // ===== ATUALIZAR DROPDOWN DINAMICAMENTE =====
+    function updateDropdownMenu() {
+      const dropdownProfileLink = document.getElementById('dropdownProfileLink');
+
+      if (dropdownProfileLink) {
+        if (isOwnProfile) {
+          // Está no próprio perfil - ocultar opção "Perfil"
+          dropdownProfileLink.style.display = 'none';
+        } else {
+          // Está em outro perfil - mostrar opção "Perfil"
+          dropdownProfileLink.style.display = 'flex';
+          dropdownProfileLink.href = 'profile.html';
+        }
       }
     }
 
@@ -158,13 +260,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (userAvatar && dropdownMenu) {
       userAvatar.addEventListener('click', (e) => {
         e.stopPropagation();
-        console.log('🔘 Avatar clicado!'); // Debug
         dropdownMenu.classList.toggle('hidden');
       });
     } else {
-      console.error('❌ Elementos não encontrados:', { 
-        userAvatar: !!userAvatar, 
-        dropdownMenu: !!dropdownMenu 
+      console.error('❌ Elementos não encontrados:', {
+        userAvatar: !!userAvatar,
+        dropdownMenu: !!dropdownMenu
       });
     }
 
@@ -206,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnEditProfile) {
       btnEditProfile.addEventListener('click', async () => {
         if (!isOwnProfile) return; // Só permite editar o próprio perfil
-        
+
         const { data: profile } = await supabase
           .from('profiles')
           .select('*')
@@ -294,7 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (newAvatarFile) {
             const fileExt = newAvatarFile.name.split('.').pop();
             const fileName = `${currentUser.id}/avatar_${Date.now()}.${fileExt}`;
-            
+
             const { error: uploadError } = await supabase.storage
               .from('avatars')
               .upload(fileName, newAvatarFile, {
@@ -406,7 +507,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .eq('publication_id', postId)
             .eq('user_id', currentUser.id)
             .single();
-          
+
           userLiked = !!like;
         }
 
@@ -460,8 +561,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
 
                 ${comments && comments.length > 0 ? comments.map(c => {
-                  const isCommentOwner = currentUser && c.user_id === currentUser.id;
-                  return `
+            const isCommentOwner = currentUser && c.user_id === currentUser.id;
+            return `
                     <div class="view-comment" data-comment-id="${c.id}">
                       <img src="${c.profiles.avatar_url}" alt="${c.profiles.username}" class="view-comment-avatar">
                       <div class="view-comment-content">
@@ -484,7 +585,7 @@ document.addEventListener('DOMContentLoaded', () => {
                       ` : ''}
                     </div>
                   `;
-                }).join('') : ''}
+          }).join('') : ''}
               </div>
 
               <div class="view-post-actions">
@@ -534,7 +635,7 @@ document.addEventListener('DOMContentLoaded', () => {
               try {
                 await supabase.from('comments').delete().eq('publication_id', postId);
                 await supabase.from('likes').delete().eq('publication_id', postId);
-                
+
                 const { error: deleteError } = await supabase
                   .from('publications')
                   .delete()
@@ -565,18 +666,18 @@ document.addEventListener('DOMContentLoaded', () => {
           const commentOptionsButtons = viewPostContent.querySelectorAll('.btn-comment-options');
           commentOptionsButtons.forEach(btn => {
             const commentOptionsMenu = btn.nextElementSibling;
-            
+
             if (commentOptionsMenu) {
               btn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                
+
                 // Fechar outros menus abertos
                 document.querySelectorAll('.comment-options-menu').forEach(menu => {
                   if (menu !== commentOptionsMenu) {
                     menu.classList.add('hidden');
                   }
                 });
-                
+
                 commentOptionsMenu.classList.toggle('hidden');
               });
 
@@ -719,16 +820,16 @@ document.addEventListener('DOMContentLoaded', () => {
       if (diff < 3600) return `HÁ ${Math.floor(diff / 60)} MIN`;
       if (diff < 86400) return `HÁ ${Math.floor(diff / 3600)} H`;
       if (diff < 604800) return `HÁ ${Math.floor(diff / 86400)} D`;
-      
+
       return date.toLocaleDateString('pt-BR').toUpperCase();
     }
 
-// Inicializar
+    // Inicializar
     checkAuth();
 
     // ===== ABRIR POST AUTOMATICAMENTE SE VIR DA BUSCA =====
     const postIdFromUrl = urlParams.get('post');
-    
+
     if (postIdFromUrl) {
       // Aguardar o perfil carregar antes de abrir o modal
       setTimeout(() => {
