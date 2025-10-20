@@ -45,40 +45,53 @@ document.addEventListener('DOMContentLoaded', () => {
           .eq('id', currentUser.id)
           .single();
 
-        if (profile) {
+        if (profile && userAvatar) {
           userAvatar.src = profile.avatar_url;
+        }
+
+        if (profile && userName) {
           userName.textContent = '@' + profile.username;
         }
 
         // Mostrar e-mail
-        userEmail.textContent = currentUser.email;
-        document.getElementById('currentEmail').value = currentUser.email;
+        if (userEmail) {
+          userEmail.textContent = currentUser.email;
+        }
+        
+        const currentEmailInput = document.getElementById('currentEmail');
+        if (currentEmailInput) {
+          currentEmailInput.value = currentUser.email;
+        }
 
       } catch (error) {
         console.error('Erro ao carregar informações:', error);
       }
     }
 
-    // Dropdown Menu
+    // ===== DROPDOWN MENU =====
     const dropdownMenu = document.getElementById('dropdownMenu');
     const btnLogout = document.getElementById('btnLogout');
 
-    userAvatar.addEventListener('click', (e) => {
-      e.stopPropagation();
-      dropdownMenu.classList.toggle('hidden');
-    });
+    if (userAvatar && dropdownMenu) {
+      userAvatar.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdownMenu.classList.toggle('hidden');
+      });
+    }
 
     document.addEventListener('click', (e) => {
-      if (!dropdownMenu.contains(e.target) && e.target !== userAvatar) {
+      if (dropdownMenu && !dropdownMenu.contains(e.target) && e.target !== userAvatar) {
         dropdownMenu.classList.add('hidden');
       }
     });
 
-    btnLogout.addEventListener('click', async () => {
-      await supabase.auth.signOut();
-      localStorage.clear();
-      window.location.href = 'index.html';
-    });
+    if (btnLogout) {
+      btnLogout.addEventListener('click', async () => {
+        await supabase.auth.signOut();
+        localStorage.clear();
+        window.location.href = 'index.html';
+      });
+    }
 
     // Navegação entre seções
     navItems.forEach(item => {
@@ -91,7 +104,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Mostrar seção correspondente
         sections.forEach(section => section.classList.remove('active'));
-        document.getElementById(sectionId).classList.add('active');
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) {
+          targetSection.classList.add('active');
+        }
       });
     });
 
@@ -102,67 +118,77 @@ document.addEventListener('DOMContentLoaded', () => {
     const formChangeEmail = document.getElementById('formChangeEmail');
     const emailMessage = document.getElementById('emailMessage');
 
-    btnChangeEmail.addEventListener('click', () => {
-      modalChangeEmail.classList.remove('hidden');
-    });
+    if (btnChangeEmail && modalChangeEmail) {
+      btnChangeEmail.addEventListener('click', () => {
+        modalChangeEmail.classList.remove('hidden');
+      });
+    }
 
-    closeEmailModal.addEventListener('click', () => {
-      modalChangeEmail.classList.add('hidden');
-      formChangeEmail.reset();
-      emailMessage.classList.add('hidden');
-    });
-
-    modalChangeEmail.addEventListener('click', (e) => {
-      if (e.target === modalChangeEmail) {
+    if (closeEmailModal && modalChangeEmail) {
+      closeEmailModal.addEventListener('click', () => {
         modalChangeEmail.classList.add('hidden');
-      }
-    });
+        if (formChangeEmail) formChangeEmail.reset();
+        if (emailMessage) emailMessage.classList.add('hidden');
+      });
+    }
 
-    formChangeEmail.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const newEmail = document.getElementById('newEmail').value;
-      const password = document.getElementById('passwordEmail').value;
-
-      try {
-        showEmailMessage('Alterando e-mail...', 'success');
-
-        // Verificar senha atual
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: currentUser.email,
-          password: password
-        });
-
-        if (signInError) {
-          showEmailMessage('Senha incorreta!', 'error');
-          return;
-        }
-
-        // Atualizar e-mail
-        const { error: updateError } = await supabase.auth.updateUser({
-          email: newEmail
-        });
-
-        if (updateError) throw updateError;
-
-        showEmailMessage('E-mail atualizado! Verifique sua caixa de entrada.', 'success');
-        
-        setTimeout(() => {
+    if (modalChangeEmail) {
+      modalChangeEmail.addEventListener('click', (e) => {
+        if (e.target === modalChangeEmail) {
           modalChangeEmail.classList.add('hidden');
-          formChangeEmail.reset();
-          userEmail.textContent = newEmail;
-        }, 2000);
+        }
+      });
+    }
 
-      } catch (error) {
-        console.error('Erro ao alterar e-mail:', error);
-        showEmailMessage('Erro: ' + error.message, 'error');
-      }
-    });
+    if (formChangeEmail) {
+      formChangeEmail.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const newEmail = document.getElementById('newEmail').value;
+        const password = document.getElementById('passwordEmail').value;
+
+        try {
+          showEmailMessage('Alterando e-mail...', 'success');
+
+          // Verificar senha atual
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email: currentUser.email,
+            password: password
+          });
+
+          if (signInError) {
+            showEmailMessage('Senha incorreta!', 'error');
+            return;
+          }
+
+          // Atualizar e-mail
+          const { error: updateError } = await supabase.auth.updateUser({
+            email: newEmail
+          });
+
+          if (updateError) throw updateError;
+
+          showEmailMessage('E-mail atualizado! Verifique sua caixa de entrada.', 'success');
+          
+          setTimeout(() => {
+            if (modalChangeEmail) modalChangeEmail.classList.add('hidden');
+            if (formChangeEmail) formChangeEmail.reset();
+            if (userEmail) userEmail.textContent = newEmail;
+          }, 2000);
+
+        } catch (error) {
+          console.error('Erro ao alterar e-mail:', error);
+          showEmailMessage('Erro: ' + error.message, 'error');
+        }
+      });
+    }
 
     function showEmailMessage(message, type) {
-      emailMessage.textContent = message;
-      emailMessage.className = `message ${type}`;
-      emailMessage.classList.remove('hidden');
+      if (emailMessage) {
+        emailMessage.textContent = message;
+        emailMessage.className = `message ${type}`;
+        emailMessage.classList.remove('hidden');
+      }
     }
 
     // ===== MODAL DE ALTERAR SENHA =====
@@ -172,77 +198,87 @@ document.addEventListener('DOMContentLoaded', () => {
     const formChangePassword = document.getElementById('formChangePassword');
     const passwordMessage = document.getElementById('passwordMessage');
 
-    btnChangePassword.addEventListener('click', () => {
-      modalChangePassword.classList.remove('hidden');
-    });
+    if (btnChangePassword && modalChangePassword) {
+      btnChangePassword.addEventListener('click', () => {
+        modalChangePassword.classList.remove('hidden');
+      });
+    }
 
-    closePasswordModal.addEventListener('click', () => {
-      modalChangePassword.classList.add('hidden');
-      formChangePassword.reset();
-      passwordMessage.classList.add('hidden');
-    });
-
-    modalChangePassword.addEventListener('click', (e) => {
-      if (e.target === modalChangePassword) {
+    if (closePasswordModal && modalChangePassword) {
+      closePasswordModal.addEventListener('click', () => {
         modalChangePassword.classList.add('hidden');
-      }
-    });
+        if (formChangePassword) formChangePassword.reset();
+        if (passwordMessage) passwordMessage.classList.add('hidden');
+      });
+    }
 
-    formChangePassword.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const currentPassword = document.getElementById('currentPassword').value;
-      const newPassword = document.getElementById('newPassword').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
+    if (modalChangePassword) {
+      modalChangePassword.addEventListener('click', (e) => {
+        if (e.target === modalChangePassword) {
+          modalChangePassword.classList.add('hidden');
+        }
+      });
+    }
 
-      if (newPassword !== confirmPassword) {
-        showPasswordMessage('As senhas não coincidem!', 'error');
-        return;
-      }
+    if (formChangePassword) {
+      formChangePassword.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
 
-      if (newPassword.length < 6) {
-        showPasswordMessage('A senha deve ter pelo menos 6 caracteres!', 'error');
-        return;
-      }
-
-      try {
-        showPasswordMessage('Alterando senha...', 'success');
-
-        // Verificar senha atual
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: currentUser.email,
-          password: currentPassword
-        });
-
-        if (signInError) {
-          showPasswordMessage('Senha atual incorreta!', 'error');
+        if (newPassword !== confirmPassword) {
+          showPasswordMessage('As senhas não coincidem!', 'error');
           return;
         }
 
-        // Atualizar senha
-        const { error: updateError } = await supabase.auth.updateUser({
-          password: newPassword
-        });
+        if (newPassword.length < 6) {
+          showPasswordMessage('A senha deve ter pelo menos 6 caracteres!', 'error');
+          return;
+        }
 
-        if (updateError) throw updateError;
+        try {
+          showPasswordMessage('Alterando senha...', 'success');
 
-        showPasswordMessage('Senha alterada com sucesso!', 'success');
-        
-        setTimeout(() => {
-          modalChangePassword.classList.add('hidden');
-          formChangePassword.reset();
-        }, 2000);
+          // Verificar senha atual
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email: currentUser.email,
+            password: currentPassword
+          });
 
-      } catch (error) {
-        console.error('Erro ao alterar senha:', error);
-        showPasswordMessage('Erro: ' + error.message, 'error');
-      }
-    });
+          if (signInError) {
+            showPasswordMessage('Senha atual incorreta!', 'error');
+            return;
+          }
+
+          // Atualizar senha
+          const { error: updateError } = await supabase.auth.updateUser({
+            password: newPassword
+          });
+
+          if (updateError) throw updateError;
+
+          showPasswordMessage('Senha alterada com sucesso!', 'success');
+          
+          setTimeout(() => {
+            if (modalChangePassword) modalChangePassword.classList.add('hidden');
+            if (formChangePassword) formChangePassword.reset();
+          }, 2000);
+
+        } catch (error) {
+          console.error('Erro ao alterar senha:', error);
+          showPasswordMessage('Erro: ' + error.message, 'error');
+        }
+      });
+    }
 
     function showPasswordMessage(message, type) {
-      passwordMessage.textContent = message;
-      passwordMessage.className = `message ${type}`;
-      passwordMessage.classList.remove('hidden');
+      if (passwordMessage) {
+        passwordMessage.textContent = message;
+        passwordMessage.className = `message ${type}`;
+        passwordMessage.classList.remove('hidden');
+      }
     }
 
     // ===== MODAL DE EXCLUIR CONTA =====
@@ -254,20 +290,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const deleteMessage = document.getElementById('deleteMessage');
 
     // Abrir modal
-    if (btnDeleteAccount) {
+    if (btnDeleteAccount && modalDeleteAccount) {
       btnDeleteAccount.addEventListener('click', () => {
         modalDeleteAccount.classList.remove('hidden');
       });
     }
 
     // Fechar modal
-    if (closeModalDelete) {
+    if (closeModalDelete && modalDeleteAccount) {
       closeModalDelete.addEventListener('click', () => {
         modalDeleteAccount.classList.add('hidden');
       });
     }
 
-    if (btnCancelDelete) {
+    if (btnCancelDelete && modalDeleteAccount) {
       btnCancelDelete.addEventListener('click', () => {
         modalDeleteAccount.classList.add('hidden');
       });
@@ -282,74 +318,129 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // CONFIRMAR EXCLUSÃO
+    // ===== CONFIRMAR EXCLUSÃO =====
     if (btnConfirmDelete) {
       btnConfirmDelete.addEventListener('click', async () => {
         try {
           showDeleteMessage('Excluindo conta...', 'success');
           btnConfirmDelete.disabled = true;
 
+          console.log('🔄 Iniciando exclusão do usuário:', currentUser.id);
+
           // 1. Buscar todas as publicações do usuário
-          const { data: publications } = await supabase
+          const { data: publications, error: pubError } = await supabase
             .from('publications')
             .select('id, image_url')
             .eq('user_id', currentUser.id);
 
+          if (pubError) {
+            console.error('Erro ao buscar publicações:', pubError);
+          } else {
+            console.log(`📦 Encontradas ${publications?.length || 0} publicações`);
+          }
+
           // 2. Deletar imagens das publicações do storage
           if (publications && publications.length > 0) {
+            console.log('🗑️ Deletando imagens das publicações...');
             for (const pub of publications) {
               try {
                 const imagePath = pub.image_url.split('/').slice(-2).join('/');
-                await supabase.storage
+                const { error: storageError } = await supabase.storage
                   .from('publications')
                   .remove([imagePath]);
+                
+                if (storageError) {
+                  console.warn('Erro ao deletar imagem:', storageError);
+                } else {
+                  console.log('✅ Imagem deletada:', imagePath);
+                }
               } catch (err) {
-                console.log('Erro ao deletar imagem:', err);
+                console.warn('Erro ao processar imagem:', err);
               }
             }
 
             // 3. Deletar comentários das publicações
-            for (const pub of publications) {
-              await supabase
-                .from('comments')
-                .delete()
-                .eq('publication_id', pub.id);
+            console.log('🗑️ Deletando comentários das publicações...');
+            const publicationIds = publications.map(p => p.id);
+            const { error: commentsError } = await supabase
+              .from('comments')
+              .delete()
+              .in('publication_id', publicationIds);
+
+            if (commentsError) {
+              console.warn('Erro ao deletar comentários:', commentsError);
+            } else {
+              console.log('✅ Comentários das publicações deletados');
             }
 
             // 4. Deletar likes das publicações
-            for (const pub of publications) {
-              await supabase
-                .from('likes')
-                .delete()
-                .eq('publication_id', pub.id);
+            console.log('🗑️ Deletando likes das publicações...');
+            const { error: likesError } = await supabase
+              .from('likes')
+              .delete()
+              .in('publication_id', publicationIds);
+
+            if (likesError) {
+              console.warn('Erro ao deletar likes:', likesError);
+            } else {
+              console.log('✅ Likes das publicações deletados');
             }
 
             // 5. Deletar as publicações
-            await supabase
+            console.log('🗑️ Deletando publicações...');
+            const { error: delPubError } = await supabase
               .from('publications')
               .delete()
               .eq('user_id', currentUser.id);
+
+            if (delPubError) {
+              console.warn('Erro ao deletar publicações:', delPubError);
+            } else {
+              console.log('✅ Publicações deletadas');
+            }
           }
 
           // 6. Deletar comentários feitos pelo usuário em outras publicações
-          await supabase
+          console.log('🗑️ Deletando comentários do usuário...');
+          const { error: userCommentsError } = await supabase
             .from('comments')
             .delete()
             .eq('user_id', currentUser.id);
 
+          if (userCommentsError) {
+            console.warn('Erro ao deletar comentários do usuário:', userCommentsError);
+          } else {
+            console.log('✅ Comentários do usuário deletados');
+          }
+
           // 7. Deletar likes dados pelo usuário
-          await supabase
+          console.log('🗑️ Deletando likes do usuário...');
+          const { error: userLikesError } = await supabase
             .from('likes')
             .delete()
             .eq('user_id', currentUser.id);
 
+          if (userLikesError) {
+            console.warn('Erro ao deletar likes do usuário:', userLikesError);
+          } else {
+            console.log('✅ Likes do usuário deletados');
+          }
+
           // 8. Deletar relacionamentos de seguidores
-          await supabase
+          console.log('🗑️ Deletando seguidores...');
+          const { error: followersError } = await supabase
             .from('followers')
             .delete()
             .or(`follower_id.eq.${currentUser.id},following_id.eq.${currentUser.id}`);
 
+          if (followersError) {
+            console.warn('Erro ao deletar seguidores:', followersError);
+          } else {
+            console.log('✅ Seguidores deletados');
+          }
+
           // 9. Deletar avatar do storage (se não for o padrão)
+          console.log('🗑️ Deletando avatar...');
           try {
             const { data: profile } = await supabase
               .from('profiles')
@@ -363,36 +454,63 @@ document.addEventListener('DOMContentLoaded', () => {
                 !profile.avatar_url.includes('dicebear') &&
                 !profile.avatar_url.includes('placeholder')) {
               const avatarPath = profile.avatar_url.split('/').slice(-2).join('/');
-              await supabase.storage
+              const { error: avatarError } = await supabase.storage
                 .from('avatars')
                 .remove([avatarPath]);
+              
+              if (avatarError) {
+                console.warn('Erro ao deletar avatar:', avatarError);
+              } else {
+                console.log('✅ Avatar deletado');
+              }
             }
           } catch (err) {
-            console.log('Erro ao deletar avatar:', err);
+            console.warn('Erro ao processar avatar:', err);
           }
 
           // 10. Deletar perfil do usuário
+          console.log('🗑️ Deletando perfil...');
           const { error: profileError } = await supabase
             .from('profiles')
             .delete()
             .eq('id', currentUser.id);
 
-          if (profileError) throw profileError;
+          if (profileError) {
+            console.error('❌ Erro ao deletar perfil:', profileError);
+            throw new Error('Erro ao deletar perfil: ' + profileError.message);
+          } else {
+            console.log('✅ Perfil deletado');
+          }
 
+          // 11. DELETAR USUÁRIO DO AUTH.USERS
+          console.log('🗑️ Deletando usuário do Authentication...');
+          
+          const { error: deleteUserError } = await supabase.rpc('delete_user');
+
+          if (deleteUserError) {
+            console.error('❌ Erro ao deletar usuário:', deleteUserError);
+            console.log('⚠️ Usuário deletado das tabelas mas pode permanecer no auth.users');
+          } else {
+            console.log('✅ Usuário deletado do Authentication');
+          }
+
+          console.log('✅ Conta excluída com sucesso!');
           showDeleteMessage('Conta excluída com sucesso!', 'success');
 
-          // Logout e redirecionar
+          // 12. Fazer logout e limpar dados locais
           await supabase.auth.signOut();
           localStorage.clear();
+          sessionStorage.clear();
 
+          // Redirecionar após 2 segundos
           setTimeout(() => {
             window.location.href = 'index.html';
           }, 2000);
 
         } catch (error) {
-          console.error('Erro ao excluir conta:', error);
+          console.error('💥 Erro fatal ao excluir conta:', error);
           showDeleteMessage('Erro ao excluir conta: ' + error.message, 'error');
-          btnConfirmDelete.disabled = false;
+          if (btnConfirmDelete) btnConfirmDelete.disabled = false;
         }
       });
     }
@@ -415,10 +533,8 @@ document.addEventListener('DOMContentLoaded', () => {
         themeBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         
-        // Salvar preferência
         localStorage.setItem('theme', theme);
         
-        // Aplicar tema (implementar depois)
         if (theme === 'dark') {
           showSettingsMessage('Tema escuro será implementado em breve!', 'success');
         } else if (theme === 'auto') {
@@ -439,7 +555,6 @@ document.addEventListener('DOMContentLoaded', () => {
         fontBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         
-        // Salvar preferência
         localStorage.setItem('fontSize', size);
         
         showSettingsMessage('Tamanho da fonte será implementado em breve!', 'success');
@@ -450,14 +565,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggles = document.querySelectorAll('.toggle-switch input[type="checkbox"]');
     
     toggles.forEach(toggle => {
-      // Carregar estado salvo
       const savedState = localStorage.getItem(toggle.id);
       if (savedState !== null) {
         toggle.checked = savedState === 'true';
       }
 
       toggle.addEventListener('change', () => {
-        // Salvar estado
         localStorage.setItem(toggle.id, toggle.checked);
         
         const labels = {
@@ -489,15 +602,16 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    // Mensagem geral de configurações
     function showSettingsMessage(message, type) {
-      settingsMessage.textContent = message;
-      settingsMessage.className = `message ${type}`;
-      settingsMessage.classList.remove('hidden');
+      if (settingsMessage) {
+        settingsMessage.textContent = message;
+        settingsMessage.className = `message ${type}`;
+        settingsMessage.classList.remove('hidden');
 
-      setTimeout(() => {
-        settingsMessage.classList.add('hidden');
-      }, 3000);
+        setTimeout(() => {
+          settingsMessage.classList.add('hidden');
+        }, 3000);
+      }
     }
 
     // Inicializar
