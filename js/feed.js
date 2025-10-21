@@ -224,13 +224,13 @@ document.addEventListener('DOMContentLoaded', () => {
         
         loadingFeed.classList.remove('hidden');
         emptyFeed.classList.add('hidden');
-        feedPosts.innerHTML = ''; // ⬅️ LIMPAR O FEED SEMPRE ANTES
+        feedPosts.innerHTML = '';
 
         const { data: posts, error } = await supabase
           .from('publications')
           .select(`
             *,
-            profiles:user_id (username, avatar_url)
+            profiles:user_id (id, username, avatar_url)
           `)
           .order('created_at', { ascending: false });
 
@@ -250,7 +250,6 @@ document.addEventListener('DOMContentLoaded', () => {
         allPosts = posts;
         console.log(`✅ ${posts.length} posts carregados`);
 
-        // ⬅️ RENDERIZAR POSTS SEM VERIFICAÇÃO DUPLICADA
         for (const post of posts) {
           await renderPost(post);
         }
@@ -265,7 +264,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function renderPost(post) {
       try {
-        // ⬅️ VERIFICAR SE JÁ EXISTE ANTES DE CRIAR
         if (document.querySelector(`[data-post-id="${post.id}"]`)) {
           console.log(`⚠️ Post ${post.id} já renderizado, pulando...`);
           return;
@@ -298,7 +296,6 @@ document.addEventListener('DOMContentLoaded', () => {
           .order('created_at', { ascending: false })
           .limit(2);
 
-        // Verificar se é o dono do post
         const isOwner = currentUser && post.user_id === currentUser.id;
 
         const postCard = document.createElement('div');
@@ -306,9 +303,9 @@ document.addEventListener('DOMContentLoaded', () => {
         postCard.setAttribute('data-post-id', post.id);
         postCard.innerHTML = `
           <div class="post-header">
-            <div class="post-header-left">
-              <img src="${post.profiles.avatar_url}" alt="${post.profiles.username}" class="post-avatar">
-              <span class="post-author">${post.profiles.username}</span>
+            <div class="post-header-left" data-user-id="${post.profiles.id}" style="cursor: pointer; display: flex; align-items: center; gap: 12px;">
+              <img src="${post.profiles.avatar_url}" alt="${post.profiles.username}" class="post-avatar" style="cursor: pointer;">
+              <span class="post-author" style="cursor: pointer;">${post.profiles.username}</span>
             </div>
             ${isOwner ? `
               <div class="post-options">
@@ -360,9 +357,19 @@ document.addEventListener('DOMContentLoaded', () => {
           </form>
         `;
 
-        // ⬅️ ADICIONAR AO FEED APENAS UMA VEZ
         if (feedPosts) {
           feedPosts.appendChild(postCard);
+        }
+
+        // ===== TORNAR FOTO E NOME CLICÁVEIS =====
+        const postHeaderLeft = postCard.querySelector('.post-header-left');
+        if (postHeaderLeft) {
+          postHeaderLeft.addEventListener('click', () => {
+            const userId = postHeaderLeft.getAttribute('data-user-id');
+            if (userId) {
+              window.location.href = `profile.html?user=${userId}`;
+            }
+          });
         }
 
         // Menu de opções (apenas para o dono)
@@ -375,7 +382,6 @@ document.addEventListener('DOMContentLoaded', () => {
             btnOptions.addEventListener('click', (e) => {
               e.stopPropagation();
               
-              // Fechar outros menus abertos
               document.querySelectorAll('.options-menu').forEach(menu => {
                 if (menu !== optionsMenu) {
                   menu.classList.add('hidden');
@@ -398,19 +404,16 @@ document.addEventListener('DOMContentLoaded', () => {
               if (!confirmDelete) return;
 
               try {
-                // Deletar comentários
                 await supabase
                   .from('comments')
                   .delete()
                   .eq('publication_id', post.id);
 
-                // Deletar likes
                 await supabase
                   .from('likes')
                   .delete()
                   .eq('publication_id', post.id);
 
-                // Deletar publicação
                 const { error: deleteError } = await supabase
                   .from('publications')
                   .delete()
@@ -418,13 +421,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (deleteError) throw deleteError;
 
-                // Deletar imagem do storage
                 const imagePath = post.image_url.split('/').slice(-2).join('/');
                 await supabase.storage
                   .from('publications')
                   .remove([imagePath]);
 
-                // Remover do DOM
                 postCard.remove();
 
                 alert('Publicação excluída com sucesso!');

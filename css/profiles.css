@@ -1007,3 +1007,319 @@ body {
   margin-top: 4px;
   font-weight: 500;
 }
+
+
+/* ===== SISTEMA DE BUSCA (UNIVERSAL - FEED E PROFILE) ===== */
+.navbar-search {
+  position: relative;
+  flex: 1;
+  max-width: 268px;
+}
+
+#searchResults {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: #FFFFFF;
+  border: 1px solid #DBDBDB;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  max-height: 450px;
+  overflow-y: auto;
+  z-index: 9999; /* Abaixo do dropdown (10000) mas acima de tudo mais */
+  animation: searchSlideDown 0.2s ease;
+}
+
+@keyframes searchSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#searchResults.hidden {
+  display: none;
+}
+
+.search-results {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: #FFFFFF;
+  border: 1px solid #DBDBDB;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  max-height: 450px;
+  overflow-y: auto;
+  z-index: 9999;
+  animation: searchSlideDown 0.2s ease;
+}
+
+.search-results.hidden {
+  display: none;
+}
+
+/* Títulos de seção */
+.search-section-title {
+  padding: 12px 16px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #8E8E8E;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: #FAFAFA;
+  border-bottom: 1px solid #EFEFEF;
+}
+
+/* Items de busca */
+.search-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  text-decoration: none;
+  color: #262626;
+  transition: background 0.2s;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.search-item:hover {
+  background: #FAFAFA;
+}
+
+/* Usuários */
+.search-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #DBDBDB;
+  flex-shrink: 0;
+}
+
+.search-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.search-username {
+  font-size: 14px;
+  font-weight: 600;
+  color: #262626;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-bio {
+  font-size: 13px;
+  color: #8E8E8E;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+/* Publicações */
+.search-thumbnail {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid #DBDBDB;
+  flex-shrink: 0;
+}
+
+.search-pub-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #262626;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-pub-author {
+  font-size: 13px;
+  color: #8E8E8E;
+  margin-top: 2px;
+}
+
+/* Estados especiais */
+.search-loading,
+.search-empty,
+.search-error {
+  padding: 24px;
+  text-align: center;
+  color: #8E8E8E;
+  font-size: 14px;
+}
+
+.search-error {
+  color: #ED4956;
+}
+
+/* Scrollbar customizada */
+#searchResults::-webkit-scrollbar,
+.search-results::-webkit-scrollbar {
+  width: 6px;
+}
+
+#searchResults::-webkit-scrollbar-track,
+.search-results::-webkit-scrollbar-track {
+  background: #FAFAFA;
+  border-radius: 0 12px 12px 0;
+}
+
+#searchResults::-webkit-scrollbar-thumb,
+.search-results::-webkit-scrollbar-thumb {
+  background: #DBDBDB;
+  border-radius: 3px;
+}
+
+#searchResults::-webkit-scrollbar-thumb:hover,
+.search-results::-webkit-scrollbar-thumb:hover {
+  background: #C7C7C7;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .navbar-search {
+    max-width: none;
+  }
+  
+  #searchResults,
+  .search-results {
+    max-height: 350px;
+  }
+  
+  .search-avatar {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .search-thumbnail {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* ===== MODAL DE EDITAR PUBLICAÇÃO ===== */
+.modal-edit-post {
+  max-width: 500px;
+  width: 90%;
+  padding: 0;
+}
+
+.form-edit-post {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+}
+
+.form-edit-post .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-edit-post label {
+  font-weight: 600;
+  font-size: 14px;
+  color: #262626;
+}
+
+.form-edit-post input,
+.form-edit-post textarea {
+  padding: 12px;
+  border: 1px solid #DBDBDB;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  background-color: #FAFAFA;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.form-edit-post input:focus,
+.form-edit-post textarea:focus {
+  outline: none;
+  border-color: #0095F6;
+  background-color: #FFFFFF;
+}
+
+.form-edit-post textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.btn-primary {
+  flex: 1;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background-color: #0095F6;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: #0081D6;
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+  background-color: #B2DFFC;
+  cursor: not-allowed;
+}
+
+/* Botão de Editar no menu de opções */
+.view-option-item.edit {
+  color: #0095F6;
+}
+
+.view-option-item.edit:hover {
+  background-color: rgba(0, 149, 246, 0.1);
+}
+
+.view-option-item.edit .icon {
+  font-size: 16px;
+}
+
+
+/* ===== TORNAR FOTO E NOME CLICÁVEIS ===== */
+.post-header-left {
+  cursor: pointer !important;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: opacity 0.2s ease;
+}
+
+.post-header-left:hover {
+  opacity: 0.7;
+}
+
+.post-avatar,
+.post-author {
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.post-avatar:hover,
+.post-author:hover {
+  opacity: 0.85;
+}

@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const { data: { user } } = await supabase.auth.getUser();
     currentUser = user;
 
-    // Criar container de resultados
+    // Criar container de resultados se não existir
     let resultsContainer = document.getElementById('searchResults');
     if (!resultsContainer) {
       resultsContainer = document.createElement('div');
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Focar na busca
     searchInput.addEventListener('focus', () => {
-      if (searchInput.value.trim().length >= 2) {
+      if (searchInput.value.trim().length >= 2 && resultsContainer.innerHTML) {
         resultsContainer.classList.remove('hidden');
       }
     });
