@@ -128,16 +128,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (error) throw error;
         
-        // Avatar padrão - ESCOLHA UMA OPÇÃO:
-        
-        // OPÇÃO 1: Imagem local (coloque avatar-default.png na pasta images/)
+        // Avatar padrão
         const defaultAvatarUrl = 'images/avatar-default.png';
-        
-        // OPÇÃO 2: Placeholder online azul com ícone
-        // const defaultAvatarUrl = 'https://ui-avatars.com/api/?name=User&background=0095F6&color=fff&size=150';
-        
-        // OPÇÃO 3: Avatar estilizado
-        // const defaultAvatarUrl = 'https://api.dicebear.com/7.x/initials/svg?seed=User&backgroundColor=0095F6';
         
         // Criar perfil do usuário
         const { error: profileError } = await supabase
@@ -184,19 +176,78 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // ENTRAR COMO VISITANTE (ANÔNIMO)
-    btnAnonymous.addEventListener('click', () => {
-      localStorage.setItem('anonymous_user', 'true');
-      localStorage.setItem('anonymous_username', 'Visitante');
-      window.location.href = 'feed.html';
-    });
+    // ===== ENTRAR COMO ANÔNIMO (CRIAR CONTA ÚNICA) =====
+    if (btnAnonymous) {
+      btnAnonymous.addEventListener('click', async () => {
+        try {
+          btnAnonymous.disabled = true;
+          btnAnonymous.textContent = 'Criando conta anônima...';
+          showMessage('Criando conta anônima...', 'success');
+
+          // Gerar ID único para o usuário anônimo
+          const randomId = Math.random().toString(36).substring(2, 15) + 
+                           Math.random().toString(36).substring(2, 15);
+          
+          const anonymousEmail = `anon_${randomId}@anon.designessence.com`;
+          const anonymousPassword = `anon_${randomId}_${Date.now()}`;
+
+          console.log('🎭 Criando conta anônima...');
+
+          // Criar conta anônima
+          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+            email: anonymousEmail,
+            password: anonymousPassword,
+            options: {
+              data: {
+                is_anonymous: true
+              }
+            }
+          });
+
+          if (signUpError) {
+            console.error('Erro ao criar conta anônima:', signUpError);
+            throw signUpError;
+          }
+
+          console.log('✅ Conta anônima criada:', anonymousEmail);
+
+          // Aguardar para garantir que o perfil foi criado pela trigger
+          await new Promise(resolve => setTimeout(resolve, 2000));
+
+          // Fazer login automático
+          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            email: anonymousEmail,
+            password: anonymousPassword
+          });
+
+          if (signInError) {
+            console.error('Erro ao fazer login:', signInError);
+            throw signInError;
+          }
+
+          console.log('✅ Login anônimo bem-sucedido');
+          
+          showMessage('Conta anônima criada! Entrando...', 'success');
+
+          // Redirecionar após 1 segundo
+          setTimeout(() => {
+            window.location.href = 'feed.html';
+          }, 1000);
+
+        } catch (error) {
+          console.error('💥 Erro ao criar conta anônima:', error);
+          showMessage('Erro ao criar conta anônima: ' + error.message, 'error');
+          btnAnonymous.disabled = false;
+          btnAnonymous.textContent = 'Entrar como anônimo';
+        }
+      });
+    }
 
     // Verificar se usuário já está logado
     async function checkIfLoggedIn() {
       const { data: { user } } = await supabase.auth.getUser();
-      const isAnon = localStorage.getItem('anonymous_user') === 'true';
       
-      if (user || isAnon) {
+      if (user) {
         window.location.href = 'feed.html';
       }
     }

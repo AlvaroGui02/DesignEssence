@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,10 +8,12 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/login.css">
 </head>
+
 <body>
   <div class="login-container">
     <div class="login-box">
-      <img src="images/logo.png" alt="DesignEssence" style="max-width: 350px; width: 350px; height: auto; display: block; margin: 0 auto 1px;">
+      <img src="images/logo.png" alt="DesignEssence"
+        style="max-width: 350px; width: 350px; height: auto; display: block; margin: 0 auto 1px;">
       <p class="subtitle">COMPARTILHE SEUS DESIGNERS COM O MUNDO</p>
 
       <!-- Abas -->
@@ -26,9 +29,14 @@
           <input type="password" id="loginPassword" placeholder="Senha" required>
           <button type="submit" class="btn-primary">Entrar</button>
         </form>
-        
-        <div class="divider">ou</div>
-        <button id="btnAnonymous" class="btn-secondary">Entrar como visitante</button>
+
+        <div class="divider">
+          <span>ou</span>
+        </div>
+
+        <button type="button" class="btn-guest" id="btnAnonymous">
+          Entrar como anônimo
+        </button>
       </div>
 
       <!-- Aba de Registro -->
@@ -50,4 +58,5 @@
   <script src="js/supabase.js"></script>
   <script src="js/auth.js"></script>
 </body>
+
 </html>

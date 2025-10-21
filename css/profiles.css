@@ -992,3 +992,18 @@ body {
 .btn-follow-user.hidden {
   display: none;
 }
+
+/* Campos desabilitados para usuários anônimos */
+.form-group input:disabled {
+  background-color: #F5F5F5;
+  color: #9E9E9E;
+  cursor: not-allowed;
+  border-color: #E0E0E0;
+}
+
+.anonymous-warning {
+  color: #ED4956;
+  font-size: 12px;
+  margin-top: 4px;
+  font-weight: 500;
+}
