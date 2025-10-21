@@ -552,20 +552,23 @@ body {
 .modal-view-content {
   position: relative;
   width: 100%;
-  max-width: 1000px;
+  max-width: 1200px;
   max-height: 90vh;
   background-color: #FFFFFF;
   border-radius: 12px;
   overflow: hidden;
   animation: slideUp 0.3s ease;
   z-index: 8001;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .modal-close-view {
   position: absolute;
   top: 15px;
   right: 15px;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
   color: white;
   border: none;
   width: 40px;
@@ -590,13 +593,17 @@ body {
   grid-template-columns: 1fr 400px;
   max-height: 90vh;
   overflow: hidden;
+  width: 100%;
 }
 
+/* ===== IMAGEM DO POST (CORRIGIDA) ===== */
 .view-post-image {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  background-color: #000000;
+  max-height: 90vh;
+  object-fit: contain; /* ← MUDANÇA PRINCIPAL */
+  background-color: #000000; /* ← Fundo preto */
+  display: block;
 }
 
 .view-post-sidebar {
@@ -605,6 +612,7 @@ body {
   background-color: #FFFFFF;
   border-left: 1px solid #DBDBDB;
   max-height: 90vh;
+  overflow: hidden;
 }
 
 .view-post-header {
@@ -613,6 +621,8 @@ body {
   gap: 12px;
   padding: 16px;
   border-bottom: 1px solid #DBDBDB;
+  position: relative;
+  flex-shrink: 0;
 }
 
 .view-post-avatar {
@@ -638,6 +648,7 @@ body {
   display: flex;
   gap: 12px;
   margin-bottom: 16px;
+  position: relative;
 }
 
 .view-comment-avatar {
@@ -674,6 +685,7 @@ body {
 .view-post-actions {
   padding: 12px 16px;
   border-top: 1px solid #DBDBDB;
+  flex-shrink: 0;
 }
 
 .view-action-buttons {
@@ -769,40 +781,64 @@ body {
   cursor: not-allowed;
 }
 
-/* ===== RESPONSIVO ===== */
-@media (max-width: 768px) {
-  .profile-header {
-    gap: 30px;
-  }
-  
-  .profile-avatar-large img {
-    width: 100px;
-    height: 100px;
-  }
-  
-  .profile-username-row h2 {
-    font-size: 22px;
-  }
-  
-  .posts-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 3px;
-  }
-
-  .modal-content {
-    max-width: 100%;
-    margin: 20px;
-  }
-
+/* ===== RESPONSIVO DO MODAL ===== */
+@media (max-width: 968px) {
   .view-post-container {
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
+    max-height: 95vh;
+  }
+
+  .view-post-image {
+    max-height: 60vh;
+    min-height: 300px;
   }
 
   .view-post-sidebar {
     border-left: none;
     border-top: 1px solid #DBDBDB;
+    max-height: 35vh;
+  }
+
+  .modal-view-content {
+    max-width: 95%;
+    max-height: 95vh;
+  }
+}
+
+@media (max-width: 768px) {
+  .view-post-container {
+    grid-template-columns: 1fr;
+  }
+
+  .view-post-image {
     max-height: 50vh;
+    min-height: 250px;
+  }
+
+  .view-post-sidebar {
+    max-height: 45vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-view-content {
+    border-radius: 0;
+    max-width: 100%;
+    max-height: 100vh;
+  }
+
+  .view-post-container {
+    max-height: 100vh;
+  }
+
+  .view-post-image {
+    max-height: 45vh;
+    min-height: 200px;
+  }
+
+  .view-post-sidebar {
+    max-height: 55vh;
   }
 }
 

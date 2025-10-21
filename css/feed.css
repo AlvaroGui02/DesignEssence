@@ -238,19 +238,281 @@ body {
   word-wrap: break-word;
 }
 
-/* Imagem do post */
+/* ===== POST CARD ===== */
+.post-card {
+  background: #FFFFFF;
+  border: 1px solid #DBDBDB;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  max-width: 614px;
+  width: 100%;
+}
+
+/* ===== HEADER DO POST ===== */
+.post-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid #EFEFEF;
+}
+
+.post-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.post-header-left:hover {
+  opacity: 0.7;
+}
+
+.post-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.post-author {
+  font-size: 14px;
+  font-weight: 600;
+  color: #262626;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+/* ===== TÍTULO DO POST ===== */
+.post-title-section {
+  padding: 12px 16px;
+  border-bottom: 1px solid #EFEFEF;
+}
+
+.post-title-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #262626;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ===== IMAGEM DO POST (AJUSTADA) ===== */
 .post-image {
   width: 100%;
   max-height: 600px;
-  object-fit: cover;
+  min-height: 300px;
+  object-fit: contain; /* ← MUDANÇA PRINCIPAL */
+  background-color: #000000; /* ← Fundo preto */
   display: block;
   cursor: pointer;
+  transition: transform 0.2s ease;
 }
 
-.post-image-container {
+.post-image:hover {
+  transform: scale(1.01);
+}
+
+/* ===== AÇÕES DO POST ===== */
+.post-actions {
+  padding: 12px 16px;
+  display: flex;
+  gap: 16px;
+}
+
+.action-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.2s ease;
+}
+
+.action-button:hover {
+  transform: scale(1.15);
+}
+
+.action-button:active {
+  transform: scale(0.95);
+}
+
+.btn-like.liked {
+  animation: likeAnimation 0.4s ease;
+}
+
+@keyframes likeAnimation {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+}
+
+/* ===== INFO DO POST ===== */
+.post-info {
+  padding: 0 16px 12px;
+}
+
+.post-likes {
+  font-size: 14px;
+  font-weight: 600;
+  color: #262626;
+  margin-bottom: 8px;
+}
+
+.post-caption {
+  font-size: 14px;
+  color: #262626;
+  margin-bottom: 8px;
+  line-height: 18px;
+}
+
+.post-caption .username {
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.post-description {
+  color: #262626;
+}
+
+.post-date {
+  font-size: 10px;
+  color: #8E8E8E;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  margin-top: 8px;
+}
+
+/* ===== FORMULÁRIO DE COMENTÁRIO ===== */
+.comment-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid #EFEFEF;
+}
+
+.comment-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #262626;
+  background: transparent;
+}
+
+.comment-input::placeholder {
+  color: #8E8E8E;
+}
+
+.btn-send {
+  background: none;
+  border: none;
+  color: #0095F6;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.btn-send:hover {
+  color: #00376B;
+}
+
+.btn-send:disabled {
+  color: #B2DFFC;
+  cursor: not-allowed;
+}
+
+/* ===== MENU DE OPÇÕES ===== */
+.post-options {
+  position: relative;
+}
+
+.btn-options {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px;
+  color: #262626;
+  transition: opacity 0.2s ease;
+}
+
+.btn-options:hover {
+  opacity: 0.5;
+}
+
+.options-menu {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  background: #FFFFFF;
+  border: 1px solid #DBDBDB;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 180px;
+  overflow: hidden;
+  z-index: 100;
+}
+
+.options-menu.hidden {
+  display: none;
+}
+
+.option-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: none;
+  border: none;
   width: 100%;
-  background-color: #000000;
-  margin: 0;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.option-item:hover {
+  background-color: #FAFAFA;
+}
+
+.option-item.delete {
+  color: #ED4956;
+}
+
+.option-item .icon {
+  font-size: 16px;
+}
+
+/* ===== RESPONSIVO ===== */
+@media (max-width: 768px) {
+  .post-card {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    margin-bottom: 16px;
+  }
+  
+  .post-image {
+    max-height: 500px;
+    min-height: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .post-image {
+    max-height: 400px;
+    min-height: 200px;
+  }
+  
+  .post-title-text {
+    font-size: 15px;
+  }
 }
 
 /* Ações (curtir, comentar) */
