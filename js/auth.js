@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabButtons = document.querySelectorAll('.tab-btn');
     const formLogin = document.getElementById('formLogin');
     const formRegister = document.getElementById('formRegister');
-    const btnAnonymous = document.getElementById('btnAnonymous');
     const messageDiv = document.getElementById('message');
 
     // Função para trocar de aba
@@ -175,73 +174,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showMessage('Erro ao criar conta: ' + error.message, 'error');
       }
     });
-
-    // ===== ENTRAR COMO ANÔNIMO (CRIAR CONTA ÚNICA) =====
-    if (btnAnonymous) {
-      btnAnonymous.addEventListener('click', async () => {
-        try {
-          btnAnonymous.disabled = true;
-          btnAnonymous.textContent = 'Criando conta anônima...';
-          showMessage('Criando conta anônima...', 'success');
-
-          // Gerar ID único para o usuário anônimo
-          const randomId = Math.random().toString(36).substring(2, 15) + 
-                           Math.random().toString(36).substring(2, 15);
-          
-          const anonymousEmail = `anon_${randomId}@anon.designessence.com`;
-          const anonymousPassword = `anon_${randomId}_${Date.now()}`;
-
-          console.log('🎭 Criando conta anônima...');
-
-          // Criar conta anônima
-          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-            email: anonymousEmail,
-            password: anonymousPassword,
-            options: {
-              data: {
-                is_anonymous: true
-              }
-            }
-          });
-
-          if (signUpError) {
-            console.error('Erro ao criar conta anônima:', signUpError);
-            throw signUpError;
-          }
-
-          console.log('✅ Conta anônima criada:', anonymousEmail);
-
-          // Aguardar para garantir que o perfil foi criado pela trigger
-          await new Promise(resolve => setTimeout(resolve, 2000));
-
-          // Fazer login automático
-          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-            email: anonymousEmail,
-            password: anonymousPassword
-          });
-
-          if (signInError) {
-            console.error('Erro ao fazer login:', signInError);
-            throw signInError;
-          }
-
-          console.log('✅ Login anônimo bem-sucedido');
-          
-          showMessage('Conta anônima criada! Entrando...', 'success');
-
-          // Redirecionar após 1 segundo
-          setTimeout(() => {
-            window.location.href = 'feed.html';
-          }, 1000);
-
-        } catch (error) {
-          console.error('💥 Erro ao criar conta anônima:', error);
-          showMessage('Erro ao criar conta anônima: ' + error.message, 'error');
-          btnAnonymous.disabled = false;
-          btnAnonymous.textContent = 'Entrar como anônimo';
-        }
-      });
-    }
 
     // Verificar se usuário já está logado
     async function checkIfLoggedIn() {

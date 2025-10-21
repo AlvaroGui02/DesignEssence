@@ -320,65 +320,6 @@ document.addEventListener('DOMContentLoaded', () => {
           if (editUsername) editUsername.value = profile.username;
           if (editBio) editBio.value = profile.bio || '';
           if (bioCharCount) bioCharCount.textContent = (profile.bio || '').length;
-
-          // ===== BLOQUEAR EDIÇÃO PARA USUÁRIO ANÔNIMO =====
-          if (profile.is_anonymous) {
-            // Desabilitar campo de username
-            if (editUsername) {
-              editUsername.disabled = true;
-              editUsername.style.backgroundColor = '#F5F5F5';
-              editUsername.style.color = '#9E9E9E';
-              editUsername.style.cursor = 'not-allowed';
-            }
-            
-            // Desabilitar upload de avatar
-            if (avatarUpload) {
-              avatarUpload.disabled = true;
-              avatarUpload.style.cursor = 'not-allowed';
-            }
-            
-            // Adicionar aviso visual
-            const usernameGroup = editUsername ? editUsername.closest('.form-group') : null;
-            if (usernameGroup && !usernameGroup.querySelector('.anonymous-warning')) {
-              const warning = document.createElement('p');
-              warning.className = 'anonymous-warning';
-              warning.style.cssText = 'color: #ED4956; font-size: 12px; margin-top: 4px; font-weight: 500;';
-              warning.textContent = '⚠️ Nome de usuário e foto de perfil não podem ser alterados em contas anônimas';
-              usernameGroup.appendChild(warning);
-            }
-
-            // Ocultar botão de upload de avatar visualmente
-            const avatarLabel = document.querySelector('label[for="avatarUpload"]');
-            if (avatarLabel) {
-              avatarLabel.style.opacity = '0.5';
-              avatarLabel.style.cursor = 'not-allowed';
-              avatarLabel.style.pointerEvents = 'none';
-            }
-          } else {
-            // Reabilitar se não for anônimo
-            if (editUsername) {
-              editUsername.disabled = false;
-              editUsername.style.backgroundColor = '#FAFAFA';
-              editUsername.style.color = '#262626';
-              editUsername.style.cursor = 'text';
-            }
-            
-            if (avatarUpload) {
-              avatarUpload.disabled = false;
-              avatarUpload.style.cursor = 'pointer';
-            }
-
-            const avatarLabel = document.querySelector('label[for="avatarUpload"]');
-            if (avatarLabel) {
-              avatarLabel.style.opacity = '1';
-              avatarLabel.style.cursor = 'pointer';
-              avatarLabel.style.pointerEvents = 'auto';
-            }
-
-            // Remover aviso se existir
-            const warning = document.querySelector('.anonymous-warning');
-            if (warning) warning.remove();
-          }
         }
 
         if (modalEditProfile) modalEditProfile.classList.remove('hidden');
@@ -440,25 +381,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const newUsername = editUsername ? editUsername.value.trim() : '';
         const newBio = editBio ? editBio.value.trim() : '';
 
-        // ===== VERIFICAR SE É USUÁRIO ANÔNIMO =====
-        if (currentProfile.is_anonymous) {
-          // Usuário anônimo: não pode alterar nome
-          if (newUsername !== 'Anônimo') {
-            showEditMessage('❌ Usuários anônimos não podem alterar o nome de usuário!', 'error');
-            return;
-          }
-          
-          // Não pode fazer upload de avatar
-          if (newAvatarFile) {
-            showEditMessage('❌ Usuários anônimos não podem alterar a foto de perfil!', 'error');
-            return;
-          }
-        } else {
-          // Usuário normal: validar nome
-          if (newUsername.length < 3) {
-            showEditMessage('Nome de usuário deve ter pelo menos 3 caracteres', 'error');
-            return;
-          }
+        if (newUsername.length < 3) {
+          showEditMessage('Nome de usuário deve ter pelo menos 3 caracteres', 'error');
+          return;
         }
 
         try {
@@ -466,8 +391,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
           let avatarUrl = currentProfile.avatar_url;
 
-          // Upload de novo avatar (apenas se NÃO for anônimo)
-          if (newAvatarFile && !currentProfile.is_anonymous) {
+          // Upload de novo avatar se houver
+          if (newAvatarFile) {
             const fileExt = newAvatarFile.name.split('.').pop();
             const fileName = `${currentUser.id}/avatar_${Date.now()}.${fileExt}`;
 
@@ -490,29 +415,27 @@ document.addEventListener('DOMContentLoaded', () => {
             avatarUrl = urlData.publicUrl;
           }
 
-          // Verificar se nome de usuário já existe (apenas se NÃO for anônimo)
-          if (!currentProfile.is_anonymous) {
-            const { data: existingUser } = await supabase
-              .from('profiles')
-              .select('id')
-              .eq('username', newUsername)
-              .neq('id', currentUser.id)
-              .single();
+          // Verificar se nome de usuário já existe
+          const { data: existingUser } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('username', newUsername)
+            .neq('id', currentUser.id)
+            .single();
 
-            if (existingUser) {
-              showEditMessage('Nome de usuário já está em uso', 'error');
-              return;
-            }
+          if (existingUser) {
+            showEditMessage('Nome de usuário já está em uso', 'error');
+            return;
           }
 
           // Atualizar perfil
-          const updateData = currentProfile.is_anonymous 
-            ? { bio: newBio } // Anônimo: só atualiza bio
-            : { username: newUsername, bio: newBio, avatar_url: avatarUrl }; // Normal: atualiza tudo
-
           const { error: updateError } = await supabase
             .from('profiles')
-            .update(updateData)
+            .update({
+              username: newUsername,
+              bio: newBio,
+              avatar_url: avatarUrl
+            })
             .eq('id', currentUser.id);
 
           if (updateError) {
