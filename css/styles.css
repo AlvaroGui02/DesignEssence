@@ -141,3 +141,102 @@ textarea:focus {
 }
 
 
+/* ===== MODAL DE EDITAR PUBLICAÇÃO ===== */
+.modal-edit-post {
+  max-width: 500px;
+  width: 90%;
+}
+
+.form-edit-post {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-edit-post .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-edit-post label {
+  font-weight: 600;
+  font-size: 14px;
+  color: #262626;
+}
+
+.form-edit-post input,
+.form-edit-post textarea {
+  padding: 12px;
+  border: 1px solid #DBDBDB;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  background-color: #FAFAFA;
+  transition: border-color 0.2s;
+}
+
+.form-edit-post input:focus,
+.form-edit-post textarea:focus {
+  outline: none;
+  border-color: #0095F6;
+  background-color: #FFFFFF;
+}
+
+.form-edit-post textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.btn-cancel {
+  flex: 1;
+  padding: 10px 20px;
+  border: 1px solid #DBDBDB;
+  border-radius: 8px;
+  background-color: #FFFFFF;
+  color: #262626;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+  background-color: #FAFAFA;
+}
+
+.btn-primary {
+  flex: 1;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background-color: #0095F6;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: #0081D6;
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* Botão de Editar no menu de opções */
+.view-option-item.edit {
+  color: #0095F6;
+}
+
+.view-option-item.edit:hover {
+  background-color: rgba(0, 149, 246, 0.1);
+}

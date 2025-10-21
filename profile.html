@@ -138,9 +138,9 @@
           <button type="button" class="btn-cancel" id="btnCancelEdit">Cancelar</button>
           <button type="submit" class="btn-save">Salvar</button>
         </div>
-      </form>
 
-      <div id="editMessage" class="message hidden"></div>
+        <div id="editMessage" class="message hidden"></div>
+      </form>
     </div>
   </div>
 
@@ -151,6 +151,46 @@
       <div id="viewPostContent" class="view-post-container">
         <!-- Conteúdo será carregado aqui -->
       </div>
+    </div>
+  </div>
+
+  <!-- Modal de Editar Publicação -->
+  <div id="modalEditPost" class="modal hidden">
+    <div class="modal-content modal-edit-post">
+      <div class="modal-header">
+        <h2>Editar Publicação</h2>
+        <button class="modal-close" id="closeEditPostModal">&times;</button>
+      </div>
+      
+      <form id="formEditPost" class="form-edit-post">
+        <div class="form-group">
+          <label for="editPostTitle">Título do projeto</label>
+          <input 
+            type="text" 
+            id="editPostTitle" 
+            placeholder="Digite o título do projeto"
+            maxlength="100"
+            required
+          >
+        </div>
+        
+        <div class="form-group">
+          <label for="editPostDescription">Legenda</label>
+          <textarea 
+            id="editPostDescription" 
+            placeholder="Adicione uma legenda (opcional)"
+            maxlength="500"
+            rows="4"
+          ></textarea>
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" id="btnCancelEditPost">Cancelar</button>
+          <button type="submit" class="btn-primary">Salvar alterações</button>
+        </div>
+        
+        <div id="editPostMessage" class="message hidden"></div>
+      </form>
     </div>
   </div>
 

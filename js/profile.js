@@ -472,6 +472,115 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
+    // ===== MODAL DE EDITAR PUBLICAÇÃO =====
+    const modalEditPost = document.getElementById('modalEditPost');
+    const closeEditPostModal = document.getElementById('closeEditPostModal');
+    const btnCancelEditPost = document.getElementById('btnCancelEditPost');
+    const formEditPost = document.getElementById('formEditPost');
+    const editPostTitle = document.getElementById('editPostTitle');
+    const editPostDescription = document.getElementById('editPostDescription');
+    const editPostMessage = document.getElementById('editPostMessage');
+
+    let currentEditingPost = null;
+
+    // Função para abrir modal de edição
+    function openEditPostModal(post) {
+      currentEditingPost = post;
+      
+      if (editPostTitle) editPostTitle.value = post.title || '';
+      if (editPostDescription) editPostDescription.value = post.description || '';
+      
+      if (modalEditPost) modalEditPost.classList.remove('hidden');
+      if (modalViewPost) modalViewPost.classList.add('hidden'); // Fechar modal de visualização
+    }
+
+    // Fechar modal de edição
+    if (closeEditPostModal && modalEditPost) {
+      closeEditPostModal.addEventListener('click', () => {
+        modalEditPost.classList.add('hidden');
+        if (currentEditingPost) {
+          openPostModal(currentEditingPost.id); // Reabrir visualização
+        }
+      });
+    }
+
+    if (btnCancelEditPost && modalEditPost) {
+      btnCancelEditPost.addEventListener('click', () => {
+        modalEditPost.classList.add('hidden');
+        if (currentEditingPost) {
+          openPostModal(currentEditingPost.id); // Reabrir visualização
+        }
+      });
+    }
+
+    // Fechar ao clicar fora
+    if (modalEditPost) {
+      modalEditPost.addEventListener('click', (e) => {
+        if (e.target === modalEditPost) {
+          modalEditPost.classList.add('hidden');
+          if (currentEditingPost) {
+            openPostModal(currentEditingPost.id);
+          }
+        }
+      });
+    }
+
+    // Salvar alterações da publicação
+    if (formEditPost) {
+      formEditPost.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const newTitle = editPostTitle ? editPostTitle.value.trim() : '';
+        const newDescription = editPostDescription ? editPostDescription.value.trim() : '';
+
+        if (!newTitle) {
+          showEditPostMessage('O título não pode estar vazio!', 'error');
+          return;
+        }
+
+        try {
+          showEditPostMessage('Salvando alterações...', 'success');
+
+          const { error } = await supabase
+            .from('publications')
+            .update({
+              title: newTitle,
+              description: newDescription
+            })
+            .eq('id', currentEditingPost.id);
+
+          if (error) throw error;
+
+          showEditPostMessage('Publicação atualizada com sucesso!', 'success');
+
+          setTimeout(() => {
+            if (modalEditPost) modalEditPost.classList.add('hidden');
+            loadProfile(); // Recarregar perfil
+            openPostModal(currentEditingPost.id); // Reabrir visualização atualizada
+          }, 1500);
+
+        } catch (error) {
+          console.error('Erro ao atualizar publicação:', error);
+          showEditPostMessage('Erro ao atualizar: ' + error.message, 'error');
+        }
+      });
+    }
+
+    // Mostrar mensagem no modal de edição
+    function showEditPostMessage(message, type) {
+      if (editPostMessage) {
+        editPostMessage.textContent = message;
+        editPostMessage.className = `message ${type}`;
+        editPostMessage.classList.remove('hidden');
+
+        if (type === 'error') {
+          setTimeout(() => {
+            editPostMessage.classList.add('hidden');
+          }, 3000);
+        }
+      }
+    }
+
     // ===== MODAL DE VISUALIZAR PUBLICAÇÃO =====
     const modalViewPost = document.getElementById('modalViewPost');
     const closeViewModal = document.getElementById('closeViewModal');
@@ -538,6 +647,10 @@ document.addEventListener('DOMContentLoaded', () => {
                   <div class="view-post-options">
                     <button class="btn-view-options">⋮</button>
                     <div class="view-options-menu hidden">
+                      <button class="view-option-item edit" data-action="edit">
+                        <span class="icon">✏️</span>
+                        Editar publicação
+                      </button>
                       <button class="view-option-item delete" data-action="delete">
                         <span class="icon">🗑️</span>
                         Excluir publicação
@@ -612,6 +725,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isOwner && viewPostContent) {
           const btnViewOptions = viewPostContent.querySelector('.btn-view-options');
           const viewOptionsMenu = viewPostContent.querySelector('.view-options-menu');
+          const editBtn = viewPostContent.querySelector('[data-action="edit"]');
           const deleteBtn = viewPostContent.querySelector('[data-action="delete"]');
 
           if (btnViewOptions && viewOptionsMenu) {
@@ -627,6 +741,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
           }
 
+          // Botão de EDITAR publicação
+          if (editBtn) {
+            editBtn.addEventListener('click', () => {
+              openEditPostModal(post);
+            });
+          }
+
+          // Botão de EXCLUIR publicação
           if (deleteBtn) {
             deleteBtn.addEventListener('click', async () => {
               const confirmDelete = confirm('Tem certeza que deseja excluir esta publicação?');
