@@ -274,26 +274,29 @@ body {
 .posts-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 28px;
+  gap: 18px; /* Espaço reduzido para imagens maiores */
 }
 
 .post-item {
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 4 / 3; /* Proporção ajustada para imagens mais altas */
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  background-color: #000000;
+  background-color: #F5F5F5;
+  border-radius: 8px;
+  border: 1px solid #EFEFEF;
 }
 
 .post-item img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  transition: transform 0.2s ease;
+  object-fit: contain; /* Mostra a imagem completa sem cortar */
+  transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
 .post-item:hover img {
-  transform: scale(1.05);
+  opacity: 0.9;
+  transform: scale(1.02);
 }
 
 /* ===== LOADING & EMPTY ===== */
@@ -1358,4 +1361,103 @@ body {
 .post-avatar:hover,
 .post-author:hover {
   opacity: 0.85;
+}
+
+/* ===== MODAL DE ZOOM DA FOTO DE PERFIL ===== */
+.modal-avatar-zoom {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-avatar-zoom.hidden {
+  display: none;
+}
+
+.modal-avatar-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+}
+
+.modal-avatar-content {
+  position: relative;
+  z-index: 10001;
+  max-width: 90vw;
+  max-height: 90vh;
+  animation: zoomIn 0.3s ease;
+}
+
+.modal-avatar-content img {
+  width: auto;
+  height: auto;
+  max-width: 600px;
+  max-height: 600px;
+  border-radius: 50%;
+  border: 4px solid #FFFFFF;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  object-fit: cover;
+}
+
+.modal-avatar-close {
+  position: absolute;
+  top: -50px;
+  right: -10px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 28px;
+  color: #262626;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.modal-avatar-close:hover {
+  background: #FFFFFF;
+  transform: rotate(90deg);
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .modal-avatar-content img {
+    max-width: 80vw;
+    max-height: 80vw;
+  }
+  
+  .modal-avatar-close {
+    top: -40px;
+    width: 36px;
+    height: 36px;
+    font-size: 24px;
+  }
 }

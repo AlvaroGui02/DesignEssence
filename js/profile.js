@@ -949,6 +949,48 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inicializar
     checkAuth();
 
+// ===== MODAL DE ZOOM DA FOTO DE PERFIL =====
+    const modalAvatarZoom = document.getElementById('modalAvatarZoom');
+    const avatarZoomImg = document.getElementById('avatarZoomImg');
+    const modalAvatarClose = document.querySelector('.modal-avatar-close');
+    const modalAvatarOverlay = document.querySelector('.modal-avatar-overlay');
+    const profileAvatarLarge = document.querySelector('.profile-avatar-large img');
+
+    // Abrir modal ao clicar na foto de perfil
+    if (profileAvatarLarge) {
+      profileAvatarLarge.style.cursor = 'pointer';
+      
+      profileAvatarLarge.addEventListener('click', () => {
+        avatarZoomImg.src = profileAvatarLarge.src;
+        modalAvatarZoom.classList.remove('hidden');
+        document.body.style.overflow = 'hidden'; // Bloquear scroll
+      });
+    }
+
+    // Fechar modal ao clicar no X
+    if (modalAvatarClose) {
+      modalAvatarClose.addEventListener('click', () => {
+        modalAvatarZoom.classList.add('hidden');
+        document.body.style.overflow = 'auto'; // Restaurar scroll
+      });
+    }
+
+    // Fechar modal ao clicar no fundo escuro
+    if (modalAvatarOverlay) {
+      modalAvatarOverlay.addEventListener('click', () => {
+        modalAvatarZoom.classList.add('hidden');
+        document.body.style.overflow = 'auto'; // Restaurar scroll
+      });
+    }
+
+    // Fechar modal ao pressionar ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modalAvatarZoom.classList.contains('hidden')) {
+        modalAvatarZoom.classList.add('hidden');
+        document.body.style.overflow = 'auto'; // Restaurar scroll
+      }
+    });
+
     // ===== ABRIR POST AUTOMATICAMENTE SE VIR DA BUSCA =====
     const postIdFromUrl = urlParams.get('post');
 
