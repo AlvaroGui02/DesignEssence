@@ -1,4 +1,4 @@
-/* ===== NAVBAR (mesmos estilos do feed) ===== */
+/* ===== NAVBAR ===== */
 .navbar {
   background-color: #FFFFFF;
   border-bottom: 1px solid #DBDBDB;
@@ -6,18 +6,18 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: 5000; /* ⬅️ Maior que tudo */
-  width: 100%;
+  z-index: 5000;
 }
 
 .navbar-container {
   max-width: 975px;
   margin: 0 auto;
-  padding: 14px 20px;
+  padding: 12px 20px;
   display: flex;
-  align-items: center;
+  align-items: center; /* Força alinhamento vertical central */
   justify-content: space-between;
-  gap: 24px;
+  gap: 32px;
+  min-height: 60px; /* Altura mínima para estabilidade */
 }
 
 .navbar-logo {
@@ -28,16 +28,16 @@
   font-family: 'Segoe UI', sans-serif;
   letter-spacing: -1px;
   margin: 0;
-  display: none; /* Ocultar texto */
+  display: none;
 }
 
 .navbar-logo-img {
   height: 50px;
-  max-height: 60px;
+  max-height: 50px;
   cursor: pointer;
   object-fit: contain;
   transition: opacity 0.2s ease;
-  margin: -5px 0;
+  display: block; /* Remove espaços extras */
 }
 
 .navbar-logo-img:hover {
@@ -45,18 +45,25 @@
 }
 
 .navbar-search {
+  position: relative;
   flex: 1;
-  max-width: 268px;
+  max-width: 280px;
+  display: flex; /* Força centralização */
+  align-items: center;
 }
 
 .navbar-search input {
   width: 100%;
-  padding: 8px 16px;
+  padding: 0 16px; /* Remove padding vertical */
   border: 1px solid #DBDBDB;
   border-radius: 8px;
   font-size: 14px;
   background-color: #FAFAFA;
   transition: all 0.2s ease;
+  box-sizing: border-box;
+  height: 42px; /* Altura exata do botão */
+  line-height: 42px; /* Centraliza o texto verticalmente */
+  margin: 0; /* Remove margens */
 }
 
 .navbar-search input:focus {
@@ -68,46 +75,62 @@
 .navbar-actions {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
 }
 
 .btn-new-post {
-  padding: 8px 16px;
-  background: #0095F6;
+  padding: 0 20px; /* Remove padding vertical */
+  background: #5B9BD5;
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  height: 42px; /* Mesma altura do input */
+  line-height: 42px; /* Centraliza o texto */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0; /* Remove margens */
 }
 
-.user-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  cursor: pointer;
-  object-fit: cover;
+.btn-new-post:hover {
+  background: #4A8BC2;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(91, 155, 213, 0.3);
 }
 
-/* ===== DROPDOWN MENU ===== */
+.btn-new-post:active {
+  transform: translateY(0);
+}
+
+/* ===== USER MENU & DROPDOWN ===== */
 .user-menu {
   position: relative;
+  display: flex; /* Garante alinhamento */
+  align-items: center;
 }
 
 .user-avatar {
-  width: 28px;
-  height: 28px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   cursor: pointer;
   object-fit: cover;
   border: 2px solid transparent;
-  transition: border-color 0.2s ease;
+  transition: all 0.2s ease;
+  display: block; /* Remove espaços extras */
+  margin: 0; /* Remove margens */
 }
 
 .user-avatar:hover {
-  border-color: #DBDBDB;
+  border-color: #5B9BD5;
+  transform: scale(1.05);
 }
+
 
 .dropdown-menu {
   position: absolute;

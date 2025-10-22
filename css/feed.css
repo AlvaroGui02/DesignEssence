@@ -20,11 +20,12 @@ body {
 .navbar-container {
   max-width: 975px;
   margin: 0 auto;
-  padding: 14px 20px;
+  padding: 12px 20px;
   display: flex;
-  align-items: center;
+  align-items: center; /* Força alinhamento vertical central */
   justify-content: space-between;
-  gap: 24px;
+  gap: 32px;
+  min-height: 60px; /* Altura mínima para estabilidade */
 }
 
 .navbar-logo {
@@ -39,12 +40,12 @@ body {
 }
 
 .navbar-logo-img {
-  height: 250px;
-  max-height: 60px;
+  height: 50px;
+  max-height: 50px;
   cursor: pointer;
   object-fit: contain;
   transition: opacity 0.2s ease;
-  margin: -5px 0;
+  display: block; /* Remove espaços extras */
 }
 
 .navbar-logo-img:hover {
@@ -54,17 +55,23 @@ body {
 .navbar-search {
   position: relative;
   flex: 1;
-  max-width: 268px;
+  max-width: 280px;
+  display: flex; /* Força centralização */
+  align-items: center;
 }
 
 .navbar-search input {
   width: 100%;
-  padding: 8px 16px;
+  padding: 0 16px; /* Remove padding vertical */
   border: 1px solid #DBDBDB;
   border-radius: 8px;
   font-size: 14px;
   background-color: #FAFAFA;
   transition: all 0.2s ease;
+  box-sizing: border-box;
+  height: 42px; /* Altura exata do botão */
+  line-height: 42px; /* Centraliza o texto verticalmente */
+  margin: 0; /* Remove margens */
 }
 
 .navbar-search input:focus {
@@ -76,12 +83,12 @@ body {
 .navbar-actions {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
 }
 
 .btn-new-post {
-  padding: 8px 16px;
-  background: #0095F6;
+  padding: 0 20px; /* Remove padding vertical */
+  background: #5B9BD5;
   color: white;
   border: none;
   border-radius: 8px;
@@ -89,14 +96,47 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
+  height: 42px; /* Mesma altura do input */
+  line-height: 42px; /* Centraliza o texto */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0; /* Remove margens */
 }
 
 .btn-new-post:hover {
-  background: #1877F2;
+  background: #4A8BC2;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(91, 155, 213, 0.3);
 }
 
 .btn-new-post:active {
-  transform: scale(0.98);
+  transform: translateY(0);
+}
+
+/* ===== USER MENU & DROPDOWN ===== */
+.user-menu {
+  position: relative;
+  display: flex; /* Garante alinhamento */
+  align-items: center;
+}
+
+.user-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  cursor: pointer;
+  object-fit: cover;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+  display: block; /* Remove espaços extras */
+  margin: 0; /* Remove margens */
+}
+
+.user-avatar:hover {
+  border-color: #5B9BD5;
+  transform: scale(1.05);
 }
 
 /* ===== USER MENU & DROPDOWN ===== */
@@ -105,17 +145,18 @@ body {
 }
 
 .user-avatar {
-  width: 28px;
-  height: 28px;
+  width: 38px; /* Aumentado de 28px para 38px */
+  height: 38px;
   border-radius: 50%;
   cursor: pointer;
   object-fit: cover;
   border: 2px solid transparent;
-  transition: border-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .user-avatar:hover {
-  border-color: #DBDBDB;
+  border-color: #5B9BD5; /* Mesma cor do botão */
+  transform: scale(1.05);
 }
 
 .dropdown-menu {
