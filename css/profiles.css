@@ -654,7 +654,7 @@ body {
   height: 100%;
   max-height: 90vh;
   object-fit: contain; /* ← MUDANÇA PRINCIPAL */
-  background-color: #000000; /* ← Fundo preto */
+  background-color: transparent; /* ← Fundo preto */
   display: block;
 }
 
