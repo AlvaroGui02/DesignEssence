@@ -99,91 +99,133 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      if (password.length < 6) {
-        showMessage('Senha deve ter pelo menos 6 caracteres', 'error');
-        return;
-      }
-
-      // Validações
-      if (username.length < 3) {
-        showMessage('Nome de usuário deve ter pelo menos 3 caracteres', 'error');
-        return;
-      }
-
-      // ADICIONAR ESTA VALIDAÇÃO:
       if (username.length > 38) {
         showMessage('Nome de usuário não pode ter mais de 38 caracteres', 'error');
         return;
       }
 
-      try {
-        showMessage('Criando conta...', 'success');
+      if (password.length < 6) {
+        showMessage('Senha deve ter pelo menos 6 caracteres', 'error');
+        return;
+      }
 
-        // Verificar se username já existe
-        const { data: existingUser } = await supabase
+      try {
+        showMessage('Verificando disponibilidade...', 'success');
+
+        // 1. Verificar se username já existe
+        const { data: existingUsers, error: checkError } = await supabase
           .from('profiles')
           .select('id')
-          .eq('username', username)
-          .single();
+          .eq('username', username);
 
-        if (existingUser) {
+        if (checkError) {
+          console.log('Erro ao verificar username:', checkError);
+        }
+
+        if (existingUsers && existingUsers.length > 0) {
           showMessage('Nome de usuário já está em uso', 'error');
           return;
         }
 
-        // Criar usuário no Supabase Auth
-        const { data, error } = await supabase.auth.signUp({
+        showMessage('Criando conta...', 'success');
+
+        // 2. Criar usuário no Supabase Auth
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: email,
           password: password
         });
 
-        if (error) throw error;
+        if (signUpError) {
+          // Verifica se o erro é de email já cadastrado
+          if (signUpError.message.includes('already registered') || 
+              signUpError.message.includes('User already registered') ||
+              signUpError.message.includes('already been registered')) {
+            showMessage('Este email já está sendo utilizado em outra conta', 'error');
+            return;
+          }
+          throw signUpError;
+        }
 
-        // Avatar padrão
-        const defaultAvatarUrl = '/images/avatar-default.png';
+        if (!signUpData.user) {
+          throw new Error('Erro ao criar usuário');
+        }
 
-        // Criar perfil do usuário
+        const userId = signUpData.user.id;
+
+        // 3. Verificar se o perfil já existe (segurança extra)
+        const { data: existingProfile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('id', userId)
+          .single();
+
+        // Se o perfil já existe, não tenta criar novamente
+        if (existingProfile) {
+          showMessage('Conta já existe! Redirecionando para login...', 'success');
+          document.getElementById('registerUsername').value = '';
+          document.getElementById('registerEmail').value = '';
+          document.getElementById('registerPassword').value = '';
+          
+          setTimeout(() => {
+            document.querySelector('.tab-btn[data-tab="login"]').click();
+            showMessage('Faça login com suas credenciais', 'success');
+          }, 2000);
+          return;
+        }
+
+        // 4. Criar perfil do usuário (apenas se não existir)
+        const defaultAvatarUrl = 'images/avatar-default.png';
+        
         const { error: profileError } = await supabase
           .from('profiles')
           .insert([
             {
-              id: data.user.id,
+              id: userId,
               username: username,
               avatar_url: defaultAvatarUrl,
               bio: ''
             }
           ]);
 
-        if (profileError) throw profileError;
+        if (profileError) {
+          console.error('Erro ao criar perfil:', profileError);
+          throw profileError;
+        }
 
-        showMessage('Conta criada com sucesso! Fazendo login...', 'success');
+        showMessage('Conta criada com sucesso! Você já pode fazer login.', 'success');
 
         // Limpar formulário
         document.getElementById('registerUsername').value = '';
         document.getElementById('registerEmail').value = '';
         document.getElementById('registerPassword').value = '';
 
-        // FAZER LOGIN AUTOMÁTICO após 1.5 segundos
-        setTimeout(async () => {
-          try {
-            const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
-              email: email,
-              password: password
-            });
-
-            if (loginError) throw loginError;
-
-            // Redirecionar para o feed
-            window.location.href = 'feed.html';
-
-          } catch (error) {
-            // Se der erro no login automático, volta para aba de login
-            document.querySelector('.tab-btn[data-tab="login"]').click();
-          }
-        }, 1500);
+        // Trocar para aba de login após 2 segundos
+        setTimeout(() => {
+          document.querySelector('.tab-btn[data-tab="login"]').click();
+          showMessage('Faça login com suas credenciais', 'success');
+        }, 2000);
 
       } catch (error) {
-        showMessage('Erro ao criar conta: ' + error.message, 'error');
+        console.error('Erro completo:', error);
+        
+        // Mensagens de erro mais amigáveis
+        let errorMessage = 'Erro ao criar conta: ';
+        
+        if (error.message.includes('duplicate key')) {
+          errorMessage = 'Esta conta já existe. Tente fazer login.';
+          setTimeout(() => {
+            document.querySelector('.tab-btn[data-tab="login"]').click();
+          }, 2000);
+        } else if (error.message.includes('invalid email')) {
+          errorMessage = 'Email inválido. Verifique e tente novamente.';
+        } else if (error.message.includes('already registered') || 
+                   error.message.includes('User already registered')) {
+          errorMessage = 'Este email já está sendo utilizado em outra conta';
+        } else {
+          errorMessage += error.message;
+        }
+        
+        showMessage(errorMessage, 'error');
       }
     });
 

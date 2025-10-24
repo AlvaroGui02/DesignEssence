@@ -52,8 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
         .single();
 
       if (profile && userAvatar) {
-        userAvatar.src = profile.avatar_url || '/images/avatar-default.png';
-        userAvatar.onerror = function () { this.src = '/images/avatar-default.png'; };
+        userAvatar.src = profile.avatar_url || 'images/avatar-default.png';
+        userAvatar.onerror = function () { this.src = 'images/avatar-default.png'; };
       }
     }
 
@@ -305,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
         postCard.innerHTML = `
           <div class="post-header">
             <div class="post-header-left" data-user-id="${post.profiles.id}" style="cursor: pointer; display: flex; align-items: center; gap: 12px;">
-              <img src="${post.profiles.avatar_url || '/images/avatar-default.png'}" alt="${post.profiles.username}" class="post-avatar" style="cursor: pointer;">
+              <img src="${post.profiles.avatar_url || 'images/avatar-default.png'}" alt="${post.profiles.username}" class="post-avatar" style="cursor: pointer;">
               <span class="post-author" style="cursor: pointer;">${post.profiles.username}</span>
             </div>
             ${isOwner ? `

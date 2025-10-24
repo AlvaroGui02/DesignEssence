@@ -98,15 +98,15 @@ document.addEventListener('DOMContentLoaded', () => {
               .eq('id', currentUser.id)
               .single();
             if (currentProfile && userAvatar) {
-              userAvatar.src = currentProfile.avatar_url || '/images/avatar-default.png';
-              userAvatar.onerror = function () { this.src = '/images/avatar-default.png'; };
+              userAvatar.src = currentProfile.avatar_url || 'images/avatar-default.png';
+              userAvatar.onerror = function () { this.src = 'images/avatar-default.png'; };
             }
           }
 
           // Carregar dados do perfil visualizado
           if (profileAvatar) {
-            profileAvatar.src = profile.avatar_url || '/images/avatar-default.png';
-            profileAvatar.onerror = function () { this.src = '/images/avatar-default.png'; };
+            profileAvatar.src = profile.avatar_url || 'images/avatar-default.png';
+            profileAvatar.onerror = function () { this.src = 'images/avatar-default.png'; };
           }
           if (profileUsername) profileUsername.textContent = profile.username;
           if (profileBio) {
@@ -352,8 +352,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (profile) {
           currentProfile = profile;
           if (editAvatar) {
-            editAvatar.src = profile.avatar_url || '/images/avatar-default.png';
-            editAvatar.onerror = function () { this.src = '/images/avatar-default.png'; };
+            editAvatar.src = profile.avatar_url || 'images/avatar-default.png';
+            editAvatar.onerror = function () { this.src = 'images/avatar-default.png'; };
           }
           if (editUsername) editUsername.value = profile.username;
           if (editBio) editBio.value = profile.bio || '';
