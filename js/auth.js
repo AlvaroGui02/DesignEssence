@@ -1,6 +1,6 @@
 // Aguardar DOM e Supabase carregarem
 document.addEventListener('DOMContentLoaded', () => {
-  
+
   // Função para verificar se Supabase está pronto
   function waitForSupabase(callback) {
     if (window.supabaseClient) {
@@ -26,13 +26,13 @@ document.addEventListener('DOMContentLoaded', () => {
     tabButtons.forEach(button => {
       button.addEventListener('click', () => {
         const tabName = button.getAttribute('data-tab');
-        
+
         // Remove active de todos os botões e conteúdos
         tabButtons.forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(content => {
           content.classList.remove('active');
         });
-        
+
         // Adiciona active no botão e conteúdo clicado
         button.classList.add('active');
         if (tabName === 'login') {
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           registerTab.classList.add('active');
         }
-        
+
         // Limpa mensagens
         hideMessage();
       });
@@ -61,25 +61,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // LOGIN
     formLogin.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
+
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
-      
+
       try {
         const { data, error } = await supabase.auth.signInWithPassword({
           email: email,
           password: password
         });
-        
+
         if (error) throw error;
-        
+
         showMessage('Login realizado com sucesso!', 'success');
-        
+
         // Redirecionar para o feed após 1 segundo
         setTimeout(() => {
           window.location.href = 'feed.html';
         }, 1000);
-        
+
       } catch (error) {
         showMessage('Erro ao fazer login: ' + error.message, 'error');
       }
@@ -88,22 +88,34 @@ document.addEventListener('DOMContentLoaded', () => {
     // REGISTRO
     formRegister.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
+
       const username = document.getElementById('registerUsername').value.trim();
       const email = document.getElementById('registerEmail').value.trim();
       const password = document.getElementById('registerPassword').value;
-      
+
       // Validações
       if (username.length < 3) {
         showMessage('Nome de usuário deve ter pelo menos 3 caracteres', 'error');
         return;
       }
-      
+
       if (password.length < 6) {
         showMessage('Senha deve ter pelo menos 6 caracteres', 'error');
         return;
       }
-      
+
+      // Validações
+      if (username.length < 3) {
+        showMessage('Nome de usuário deve ter pelo menos 3 caracteres', 'error');
+        return;
+      }
+
+      // ADICIONAR ESTA VALIDAÇÃO:
+      if (username.length > 38) {
+        showMessage('Nome de usuário não pode ter mais de 38 caracteres', 'error');
+        return;
+      }
+
       try {
         showMessage('Criando conta...', 'success');
 
@@ -124,12 +136,12 @@ document.addEventListener('DOMContentLoaded', () => {
           email: email,
           password: password
         });
-        
+
         if (error) throw error;
-        
+
         // Avatar padrão
-        const defaultAvatarUrl = 'images/avatar-default.png';
-        
+        const defaultAvatarUrl = '/images/avatar-default.png';
+
         // Criar perfil do usuário
         const { error: profileError } = await supabase
           .from('profiles')
@@ -141,16 +153,16 @@ document.addEventListener('DOMContentLoaded', () => {
               bio: ''
             }
           ]);
-        
+
         if (profileError) throw profileError;
-        
+
         showMessage('Conta criada com sucesso! Fazendo login...', 'success');
-        
+
         // Limpar formulário
         document.getElementById('registerUsername').value = '';
         document.getElementById('registerEmail').value = '';
         document.getElementById('registerPassword').value = '';
-        
+
         // FAZER LOGIN AUTOMÁTICO após 1.5 segundos
         setTimeout(async () => {
           try {
@@ -158,18 +170,18 @@ document.addEventListener('DOMContentLoaded', () => {
               email: email,
               password: password
             });
-            
+
             if (loginError) throw loginError;
-            
+
             // Redirecionar para o feed
             window.location.href = 'feed.html';
-            
+
           } catch (error) {
             // Se der erro no login automático, volta para aba de login
             document.querySelector('.tab-btn[data-tab="login"]').click();
           }
         }, 1500);
-        
+
       } catch (error) {
         showMessage('Erro ao criar conta: ' + error.message, 'error');
       }
@@ -178,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Verificar se usuário já está logado
     async function checkIfLoggedIn() {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (user) {
         window.location.href = 'feed.html';
       }

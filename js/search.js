@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
         users.forEach(user => {
           html += `
             <a href="profile.html?user=${user.id}" class="search-item user-item">
-              <img src="${user.avatar_url}" alt="${user.username}" class="search-avatar">
+              <img src="${user.avatar_url || '/images/avatar-default.png'}" alt="${user.username}" class="search-avatar">
               <div class="search-info">
                 <div class="search-username">${user.username}</div>
                 ${user.bio ? `<div class="search-bio">${user.bio}</div>` : ''}

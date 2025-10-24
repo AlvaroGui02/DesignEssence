@@ -1,6 +1,6 @@
 // Aguardar Supabase carregar
 document.addEventListener('DOMContentLoaded', () => {
-  
+
   function waitForSupabase(callback) {
     if (window.supabaseClient) {
       callback();
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Verificar autenticação
     async function checkAuth() {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         window.location.href = 'index.html';
         return;
@@ -50,9 +50,10 @@ document.addEventListener('DOMContentLoaded', () => {
         .select('*')
         .eq('id', user.id)
         .single();
-      
+
       if (profile && userAvatar) {
-        userAvatar.src = profile.avatar_url;
+        userAvatar.src = profile.avatar_url || '/images/avatar-default.png';
+        userAvatar.onerror = function () { this.src = '/images/avatar-default.png'; };
       }
     }
 
@@ -84,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ===== MODAL DE NOVA PUBLICAÇÃO =====
-    
+
     if (btnNewPost && modalNewPost) {
       btnNewPost.addEventListener('click', () => {
         modalNewPost.classList.remove('hidden');
@@ -154,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
           const fileExt = file.name.split('.').pop();
           const fileNameUpload = `${currentUser.id}/${Date.now()}.${fileExt}`;
-          
+
           const { error: uploadError } = await supabase.storage
             .from('publications')
             .upload(fileNameUpload, file, {
@@ -186,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
 
           showMessage('Publicado! 🎉', 'success');
-          
+
           setTimeout(() => {
             if (modalNewPost) modalNewPost.classList.add('hidden');
             if (formNewPost) formNewPost.reset();
@@ -221,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         console.log('🔄 Carregando posts...');
-        
+
         loadingFeed.classList.remove('hidden');
         emptyFeed.classList.add('hidden');
         feedPosts.innerHTML = '';
@@ -282,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .eq('publication_id', post.id)
             .eq('user_id', currentUser.id)
             .single();
-          
+
           userLiked = !!like;
         }
 
@@ -304,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
         postCard.innerHTML = `
           <div class="post-header">
             <div class="post-header-left" data-user-id="${post.profiles.id}" style="cursor: pointer; display: flex; align-items: center; gap: 12px;">
-              <img src="${post.profiles.avatar_url}" alt="${post.profiles.username}" class="post-avatar" style="cursor: pointer;">
+              <img src="${post.profiles.avatar_url || '/images/avatar-default.png'}" alt="${post.profiles.username}" class="post-avatar" style="cursor: pointer;">
               <span class="post-author" style="cursor: pointer;">${post.profiles.username}</span>
             </div>
             ${isOwner ? `
@@ -381,13 +382,13 @@ document.addEventListener('DOMContentLoaded', () => {
           if (btnOptions && optionsMenu) {
             btnOptions.addEventListener('click', (e) => {
               e.stopPropagation();
-              
+
               document.querySelectorAll('.options-menu').forEach(menu => {
                 if (menu !== optionsMenu) {
                   menu.classList.add('hidden');
                 }
               });
-              
+
               optionsMenu.classList.toggle('hidden');
             });
 
@@ -483,7 +484,7 @@ document.addEventListener('DOMContentLoaded', () => {
           .eq('publication_id', postId)
           .eq('user_id', currentUser.id)
           .single();
-        
+
         userLiked = !!like;
       }
 
@@ -520,7 +521,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (comments && comments.length > 0) {
         const postInfo = postCard.querySelector('.post-info');
         const dateElement = postInfo.querySelector('.post-date');
-        
+
         const commentsHTML = comments.map(c => `
           <div class="post-caption">
             <span class="username">${c.profiles.username}</span>
@@ -531,7 +532,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const commentsDiv = document.createElement('div');
         commentsDiv.className = 'post-comments-preview';
         commentsDiv.innerHTML = commentsHTML;
-        
+
         dateElement.before(commentsDiv);
       }
     }
@@ -585,7 +586,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (diff < 3600) return `HÁ ${Math.floor(diff / 60)} MIN`;
       if (diff < 86400) return `HÁ ${Math.floor(diff / 3600)} H`;
       if (diff < 604800) return `HÁ ${Math.floor(diff / 86400)} D`;
-      
+
       return date.toLocaleDateString('pt-BR').toUpperCase();
     }
 

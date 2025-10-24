@@ -221,6 +221,16 @@ body {
   flex: 1;
 }
 
+.profile-username {
+  font-size: 24px;
+  font-weight: 600;
+  color: #000;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
 .profile-username-row {
   display: flex;
   align-items: center;
@@ -273,13 +283,29 @@ body {
 }
 
 .profile-bio {
-  font-size: 16px;
-  line-height: 24px;
-  color: #262626;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+  margin-top: 8px;
+  
+  /* ADICIONAR ESTAS LINHAS: */
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  white-space: pre-wrap;
 }
 
-.profile-bio p {
-  margin: 0;
+.profile-bio a {
+  color: #007bff;
+  text-decoration: underline;
+  word-break: break-all;
+  transition: color 0.2s;
+}
+
+.profile-bio a:hover {
+  color: #0056b3;
+  text-decoration: none;
 }
 
 /* ===== DIVISOR ===== */

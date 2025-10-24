@@ -1,6 +1,6 @@
 // Aguardar Supabase carregar
 document.addEventListener('DOMContentLoaded', () => {
-  
+
   function waitForSupabase(callback) {
     if (window.supabaseClient) {
       callback();
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Verificar autenticação
     async function checkAuth() {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         window.location.href = 'index.html';
         return;
@@ -46,7 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
           .single();
 
         if (profile && userAvatar) {
-          userAvatar.src = profile.avatar_url;
+          userAvatar.src = profile.avatar_url || '/images/avatar-default.png';
+          userAvatar.onerror = function () { this.src = '/images/avatar-default.png'; };
         }
 
         if (profile && userName) {
@@ -57,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (userEmail) {
           userEmail.textContent = currentUser.email;
         }
-        
+
         const currentEmailInput = document.getElementById('currentEmail');
         if (currentEmailInput) {
           currentEmailInput.value = currentUser.email;
@@ -97,11 +98,11 @@ document.addEventListener('DOMContentLoaded', () => {
     navItems.forEach(item => {
       item.addEventListener('click', () => {
         const sectionId = item.dataset.section;
-        
+
         // Atualizar navegação ativa
         navItems.forEach(nav => nav.classList.remove('active'));
         item.classList.add('active');
-        
+
         // Mostrar seção correspondente
         sections.forEach(section => section.classList.remove('active'));
         const targetSection = document.getElementById(sectionId);
@@ -143,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (formChangeEmail) {
       formChangeEmail.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         const newEmail = document.getElementById('newEmail').value;
         const password = document.getElementById('passwordEmail').value;
 
@@ -169,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (updateError) throw updateError;
 
           showEmailMessage('E-mail atualizado! Verifique sua caixa de entrada.', 'success');
-          
+
           setTimeout(() => {
             if (modalChangeEmail) modalChangeEmail.classList.add('hidden');
             if (formChangeEmail) formChangeEmail.reset();
@@ -223,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (formChangePassword) {
       formChangePassword.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         const currentPassword = document.getElementById('currentPassword').value;
         const newPassword = document.getElementById('newPassword').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
@@ -260,7 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (updateError) throw updateError;
 
           showPasswordMessage('Senha alterada com sucesso!', 'success');
-          
+
           setTimeout(() => {
             if (modalChangePassword) modalChangePassword.classList.add('hidden');
             if (formChangePassword) formChangePassword.reset();
@@ -348,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const { error: storageError } = await supabase.storage
                   .from('publications')
                   .remove([imagePath]);
-                
+
                 if (storageError) {
                   console.warn('Erro ao deletar imagem:', storageError);
                 } else {
@@ -448,16 +449,16 @@ document.addEventListener('DOMContentLoaded', () => {
               .eq('id', currentUser.id)
               .single();
 
-            if (profile && profile.avatar_url && 
-                !profile.avatar_url.includes('avatar-default') && 
-                !profile.avatar_url.includes('ui-avatars') && 
-                !profile.avatar_url.includes('dicebear') &&
-                !profile.avatar_url.includes('placeholder')) {
+            if (profile && profile.avatar_url &&
+              !profile.avatar_url.includes('avatar-default') &&
+              !profile.avatar_url.includes('ui-avatars') &&
+              !profile.avatar_url.includes('dicebear') &&
+              !profile.avatar_url.includes('placeholder')) {
               const avatarPath = profile.avatar_url.split('/').slice(-2).join('/');
               const { error: avatarError } = await supabase.storage
                 .from('avatars')
                 .remove([avatarPath]);
-              
+
               if (avatarError) {
                 console.warn('Erro ao deletar avatar:', avatarError);
               } else {
@@ -484,7 +485,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
           // 11. DELETAR USUÁRIO DO AUTH.USERS
           console.log('🗑️ Deletando usuário do Authentication...');
-          
+
           const { error: deleteUserError } = await supabase.rpc('delete_user');
 
           if (deleteUserError) {
@@ -525,16 +526,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== TEMA (CLARO/ESCURO) =====
     const themeBtns = document.querySelectorAll('.theme-btn');
-    
+
     themeBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         const theme = btn.dataset.theme;
-        
+
         themeBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        
+
         localStorage.setItem('theme', theme);
-        
+
         if (theme === 'dark') {
           showSettingsMessage('Tema escuro será implementado em breve!', 'success');
         } else if (theme === 'auto') {
@@ -547,23 +548,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== TAMANHO DA FONTE =====
     const fontBtns = document.querySelectorAll('.font-btn');
-    
+
     fontBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         const size = btn.dataset.size;
-        
+
         fontBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        
+
         localStorage.setItem('fontSize', size);
-        
+
         showSettingsMessage('Tamanho da fonte será implementado em breve!', 'success');
       });
     });
 
     // ===== TOGGLES (PRIVACIDADE, NOTIFICAÇÕES, ETC) =====
     const toggles = document.querySelectorAll('.toggle-switch input[type="checkbox"]');
-    
+
     toggles.forEach(toggle => {
       const savedState = localStorage.getItem(toggle.id);
       if (savedState !== null) {
@@ -572,7 +573,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       toggle.addEventListener('change', () => {
         localStorage.setItem(toggle.id, toggle.checked);
-        
+
         const labels = {
           'toggle2FA': 'Autenticação de dois fatores',
           'togglePrivateAccount': 'Conta privada',
@@ -588,14 +589,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const label = labels[toggle.id] || 'Configuração';
         const status = toggle.checked ? 'ativado' : 'desativado';
-        
+
         showSettingsMessage(`${label} ${status}!`, 'success');
       });
     });
 
     // ===== SELECTS (IDIOMA, FUSO, DATA) =====
     const selects = document.querySelectorAll('.select-input');
-    
+
     selects.forEach(select => {
       select.addEventListener('change', () => {
         showSettingsMessage('Configuração salva!', 'success');

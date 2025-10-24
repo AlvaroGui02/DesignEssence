@@ -54,6 +54,31 @@ document.addEventListener('DOMContentLoaded', () => {
       updateDropdownMenu(); // Atualizar dropdown após definir isOwnProfile
     }
 
+    // Função para converter URLs em links clicáveis
+    function linkifyBio(text) {
+      // Escape HTML para segurança
+      const escapeHtml = (str) => {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      };
+
+      const escapedText = escapeHtml(text);
+
+      // Regex para detectar URLs
+      const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/gi;
+
+      // Substituir URLs por links
+      return escapedText.replace(urlRegex, (url) => {
+        let href = url;
+        // Adicionar https:// se começar com www.
+        if (url.startsWith('www.')) {
+          href = 'https://' + url;
+        }
+        return `<a href="${href}" target="_blank" rel="noopener noreferrer" style="color: #007bff; text-decoration: underline;">${url}</a>`;
+      });
+    }
+
     // Carregar perfil
     async function loadProfile() {
       try {
@@ -73,14 +98,24 @@ document.addEventListener('DOMContentLoaded', () => {
               .eq('id', currentUser.id)
               .single();
             if (currentProfile && userAvatar) {
-              userAvatar.src = currentProfile.avatar_url;
+              userAvatar.src = currentProfile.avatar_url || '/images/avatar-default.png';
+              userAvatar.onerror = function () { this.src = '/images/avatar-default.png'; };
             }
           }
 
           // Carregar dados do perfil visualizado
-          if (profileAvatar) profileAvatar.src = profile.avatar_url;
+          if (profileAvatar) {
+            profileAvatar.src = profile.avatar_url || '/images/avatar-default.png';
+            profileAvatar.onerror = function () { this.src = '/images/avatar-default.png'; };
+          }
           if (profileUsername) profileUsername.textContent = profile.username;
-          if (profileBio) profileBio.textContent = profile.bio || 'Sem biografia';
+          if (profileBio) {
+            const bioText = profile.bio || 'Sem biografia';
+            // Limitar a bio para 150 caracteres
+            const limitedBio = bioText.length > 150 ? bioText.substring(0, 150) + '...' : bioText;
+            // Usar innerHTML para permitir links, mas com segurança
+            profileBio.innerHTML = linkifyBio(limitedBio);
+          }
 
           // Gerenciar botões de Editar Perfil e Seguir
           const btnEditProfile = document.getElementById('btnEditProfile');
@@ -156,8 +191,8 @@ document.addEventListener('DOMContentLoaded', () => {
           const postItem = document.createElement('div');
           postItem.className = 'post-item';
           postItem.innerHTML = `
-            <img src="${post.image_url}" alt="${post.title}">
-          `;
+        <img src="${post.image_url}" alt="${post.title}">
+      `;
 
           // ADICIONAR EVENTO DE CLIQUE
           postItem.addEventListener('click', () => {
@@ -316,7 +351,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (profile) {
           currentProfile = profile;
-          if (editAvatar) editAvatar.src = profile.avatar_url;
+          if (editAvatar) {
+            editAvatar.src = profile.avatar_url || '/images/avatar-default.png';
+            editAvatar.onerror = function () { this.src = '/images/avatar-default.png'; };
+          }
           if (editUsername) editUsername.value = profile.username;
           if (editBio) editBio.value = profile.bio || '';
           if (bioCharCount) bioCharCount.textContent = (profile.bio || '').length;
@@ -381,8 +419,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const newUsername = editUsername ? editUsername.value.trim() : '';
         const newBio = editBio ? editBio.value.trim() : '';
 
+        // VALIDAÇÕES
         if (newUsername.length < 3) {
           showEditMessage('Nome de usuário deve ter pelo menos 3 caracteres', 'error');
+          return;
+        }
+
+        if (newUsername.length > 38) {
+          showEditMessage('Nome de usuário não pode ter mais de 38 caracteres', 'error');
+          return;
+        }
+
+        if (newBio.length > 150) {
+          showEditMessage('A biografia não pode ter mais de 150 caracteres', 'error');
           return;
         }
 
@@ -486,10 +535,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Função para abrir modal de edição
     function openEditPostModal(post) {
       currentEditingPost = post;
-      
+
       if (editPostTitle) editPostTitle.value = post.title || '';
       if (editPostDescription) editPostDescription.value = post.description || '';
-      
+
       if (modalEditPost) modalEditPost.classList.remove('hidden');
       if (modalViewPost) modalViewPost.classList.add('hidden'); // Fechar modal de visualização
     }
@@ -640,7 +689,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             <div class="view-post-sidebar">
               <div class="view-post-header">
-                <img src="${post.profiles.avatar_url}" alt="${post.profiles.username}" class="view-post-avatar">
+                <img src="${post.profiles.avatar_url || '/images/avatar-default.png'}" alt="${post.profiles.username}" class="view-post-avatar">
                 <span class="view-post-author">${post.profiles.username}</span>
                 
                 ${isOwner ? `
@@ -662,7 +711,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
               <div class="view-post-comments">
                 <div class="view-comment">
-                  <img src="${post.profiles.avatar_url}" alt="${post.profiles.username}" class="view-comment-avatar">
+                  <img src="${post.profiles.avatar_url || '/images/avatar-default.png'}" alt="${post.profiles.username}" class="view-comment-avatar">
                   <div class="view-comment-content">
                     <div>
                       <span class="view-comment-username">${post.profiles.username}</span>
@@ -677,7 +726,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const isCommentOwner = currentUser && c.user_id === currentUser.id;
             return `
                     <div class="view-comment" data-comment-id="${c.id}">
-                      <img src="${c.profiles.avatar_url}" alt="${c.profiles.username}" class="view-comment-avatar">
+                      <img src="${c.profiles.avatar_url || '/images/avatar-default.png'}" alt="${c.profiles.username}" class="view-comment-avatar">
                       <div class="view-comment-content">
                         <div>
                           <span class="view-comment-username">${c.profiles.username}</span>
@@ -949,7 +998,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inicializar
     checkAuth();
 
-// ===== MODAL DE ZOOM DA FOTO DE PERFIL =====
+    // ===== MODAL DE ZOOM DA FOTO DE PERFIL =====
     const modalAvatarZoom = document.getElementById('modalAvatarZoom');
     const avatarZoomImg = document.getElementById('avatarZoomImg');
     const modalAvatarClose = document.querySelector('.modal-avatar-close');
@@ -959,7 +1008,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Abrir modal ao clicar na foto de perfil
     if (profileAvatarLarge) {
       profileAvatarLarge.style.cursor = 'pointer';
-      
+
       profileAvatarLarge.addEventListener('click', () => {
         avatarZoomImg.src = profileAvatarLarge.src;
         modalAvatarZoom.classList.remove('hidden');
