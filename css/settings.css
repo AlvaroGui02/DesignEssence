@@ -337,15 +337,17 @@ body {
 
 /* ===== BOTÕES ===== */
 .btn-secondary {
-  padding: 8px 20px;
+  padding: 6px 16px;  /* ✅ Reduzido de 8px 20px */
   background-color: #FFFFFF;
   color: #262626;
   border: 1px solid #DBDBDB;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 15px;  /* ✅ Reduzido de 14px */
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;  
+  min-width: auto;  
 }
 
 .btn-secondary:hover {
