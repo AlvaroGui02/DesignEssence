@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DesignEssence - Perfil</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/profiles.css">
+</head>
+
+<body>
+  <!-- Barra Superior -->
+  <header class="navbar">
+    <div class="navbar-container">
+      <img src="images/logo.png" alt="Logo" class="navbar-logo-img" onclick="window.location.href='feed.html'">
+
+      <div class="navbar-search">
+        <input type="text" id="searchInput" placeholder="Pesquisar...">
+      </div>
+
+      <div class="navbar-actions">
+        <button id="btnNewPost" class="btn-new-post">Nova Publicação</button>
+        <div class="user-menu">
+          <img id="userAvatar" src="" alt="Avatar" class="user-avatar">
+          <!-- Dropdown Menu -->
+          <div id="dropdownMenu" class="dropdown-menu hidden">
+            <a href="profile.html" class="dropdown-item" id="dropdownProfileLink">
+              <span class="icon">👤</span> Perfil
+            </a>
+            <a href="feed.html" class="dropdown-item">
+              <span class="icon">🏠</span> Feed
+            </a>
+            <a href="settings.html" class="dropdown-item">
+              <span class="icon">⚙️</span> Configurações
+            </a>
+            <div class="dropdown-divider"></div>
+            <button id="btnLogout" class="dropdown-item logout">
+              <span class="icon">🚪</span> Sair
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Container Principal -->
+  <main class="profile-container">
+    <!-- Header do Perfil -->
+    <div class="profile-header">
+      <div class="profile-avatar-large">
+        <img id="profileAvatar" src="" alt="Avatar">
+      </div>
+
+      <div class="profile-info">
+        <div class="profile-username-row">
+          <h2 id="profileUsername">Carregando...</h2>
+          <button id="btnEditProfile" class="btn-edit-profile">Editar Perfil</button>
+          <button id="btnFollowUser" class="btn-follow-user hidden">Seguir</button>
+        </div>
+
+        <div class="profile-stats">
+          <div class="stat">
+            <span class="stat-number" id="postsCount">0</span>
+            <span class="stat-label">publicações</span>
+          </div>
+          <div class="stat stat-clickable" id="followersBtn">
+            <span class="stat-number" id="followersCount">0</span>
+            <span class="stat-label">seguidores</span>
+          </div>
+          <div class="stat stat-clickable" id="followingBtn">
+            <span class="stat-number" id="followingCount">0</span>
+            <span class="stat-label">seguindo</span>
+          </div>
+        </div>
+
+        <div class="profile-bio">
+          <p id="profileBio">Sem biografia</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divisor -->
+    <div class="profile-divider"></div>
+
+    <!-- Grid de Publicações -->
+    <div class="profile-posts">
+      <div id="profilePostsGrid" class="posts-grid">
+        <!-- Posts do usuário -->
+      </div>
+
+      <div id="loadingProfile" class="loading">
+        <p>Carregando publicações...</p>
+      </div>
+
+      <div id="emptyProfile" class="empty-state hidden">
+        <h3>Nenhuma publicação ainda</h3>
+        <p>Compartilhe seu primeiro design!</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal de Editar Perfil -->
+  <div id="modalEditProfile" class="modal hidden">
+    <div class="modal-content modal-edit">
+      <div class="modal-header">
+        <h2>Editar Perfil</h2>
+        <button class="modal-close" id="closeModalEdit">&times;</button>
+      </div>
+
+      <form id="formEditProfile">
+        <!-- Avatar -->
+        <div class="edit-avatar-section">
+          <img id="editAvatar" src="" alt="Avatar" class="edit-avatar-preview">
+          <div class="edit-avatar-actions">
+            <label for="avatarUpload" class="btn-change-avatar">
+              Alterar foto de perfil
+            </label>
+            <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
+          </div>
+        </div>
+
+        <!-- Nome de usuário -->
+        <div class="form-group">
+          <label for="editUsername">Nome de usuário</label>
+          <input type="text" id="editUsername" placeholder="Seu nome de usuário" maxlength="38">
+        </div>
+
+        <!-- Biografia -->
+        <div class="form-group">
+          <label for="editBio">Biografia</label>
+          <textarea id="editBio" placeholder="Conte um pouco sobre você..." rows="4" maxlength="150"></textarea>
+          <small class="char-counter"><span id="bioCharCount">0</span>/150</small>
+        </div>
+
+        <!-- Botões -->
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" id="btnCancelEdit">Cancelar</button>
+          <button type="submit" class="btn-save">Salvar</button>
+        </div>
+
+        <div id="editMessage" class="message hidden"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de Visualizar Publicação -->
+  <div id="modalViewPost" class="modal hidden">
+    <div class="modal-view-content">
+      <button class="modal-close-view" id="closeViewModal">&times;</button>
+      <div id="viewPostContent" class="view-post-container">
+        <!-- Conteúdo será carregado aqui -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Editar Publicação -->
+  <div id="modalEditPost" class="modal hidden">
+    <div class="modal-content modal-edit-post">
+      <div class="modal-header">
+        <h2>Editar Publicação</h2>
+        <button class="modal-close" id="closeEditPostModal">&times;</button>
+      </div>
+
+      <form id="formEditPost" class="form-edit-post">
+        <div class="form-group">
+          <label for="editPostTitle">Título do projeto</label>
+          <input type="text" id="editPostTitle" placeholder="Digite o título do projeto" maxlength="100" required>
+        </div>
+
+        <div class="form-group">
+          <label for="editPostDescription">Legenda</label>
+          <textarea id="editPostDescription" placeholder="Adicione uma legenda (opcional)" maxlength="500"
+            rows="4"></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" id="btnCancelEditPost">Cancelar</button>
+          <button type="submit" class="btn-primary">Salvar alterações</button>
+        </div>
+
+        <div id="editPostMessage" class="message hidden"></div>
+      </form>
+    </div>
+  </div>
+  <!-- Modal de Nova Publicação-->
+  <div id="modalNewPost" class="modal hidden">
+    <div class="modal-content modal-post">
+      <div class="modal-header">
+        <h2>Criar nova publicação</h2>
+        <button class="modal-close" id="closeModalPost">&times;</button>
+      </div>
+
+      <form id="formNewPost">
+        <div class="file-upload">
+          <label for="postImage" class="file-label">
+            <span id="fileName">Escolher imagem do projeto</span>
+          </label>
+          <input type="file" id="postImage" accept="image/*" required>
+        </div>
+
+        <div id="imagePreview" class="image-preview hidden">
+          <img id="previewImg" src="" alt="Preview">
+        </div>
+
+        <div class="form-group">
+          <label for="postTitle">Título do projeto</label>
+          <input type="text" id="postTitle" placeholder="Ex: Landing page minimalista" required maxlength="100">
+        </div>
+
+        <div class="form-group">
+          <label for="postDescription">Legenda (opcional)</label>
+          <textarea id="postDescription" placeholder="Conte sobre seu projeto..." rows="4" maxlength="500"></textarea>
+          <small class="char-counter"><span id="descCharCount">0</span>/500</small>
+        </div>
+
+        <button type="submit" class="btn-primary">Publicar</button>
+      </form>
+
+      <div id="postMessage" class="message hidden"></div>
+    </div>
+  </div>
+  <!-- Modal de Zoom da Foto de Perfil -->
+  <div id="modalAvatarZoom" class="modal-avatar-zoom hidden">
+    <div class="modal-avatar-overlay"></div>
+    <div class="modal-avatar-content">
+      <button class="modal-avatar-close">&times;</button>
+      <img id="avatarZoomImg" src="" alt="Foto de Perfil">
+    </div>
+  </div>
+
+  <!-- Modal de Lista de Seguidores/Seguindo -->
+  <div id="modalFollowList" class="modal hidden">
+    <div class="modal-content modal-follow-list">
+      <div class="modal-header">
+        <h2 id="followListTitle">Seguidores</h2>
+        <button class="modal-close" id="closeFollowListModal">&times;</button>
+      </div>
+
+      <div class="follow-list-container">
+        <div id="followListContent" class="follow-list">
+          <!-- Lista será carregada aqui -->
+        </div>
+
+        <div id="followListLoading" class="loading hidden">
+          <p>Carregando...</p>
+        </div>
+
+        <div id="followListEmpty" class="empty-state hidden">
+          <p>Nenhum usuário encontrado</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/profile.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/zoom.js"></script>
+</body>
+
+</html>

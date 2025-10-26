@@ -1,0 +1,242 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --primary-color: #000000;
+  --secondary-color: #1a1a1a;
+  --accent-color: #333333;
+  --bg-color: #f5f5f5;  /* MUDOU - fundo cinza claro */
+  --card-bg: #FFFFFF;  /* MUDOU - card branco */
+  --text-color: #000000;  /* MUDOU - texto preto */
+  --text-light: #6B7280;  /* MUDOU - texto cinza */
+  --border-color: #E5E7EB;  /* MUDOU - borda cinza clara */
+  --hover-color: #F9FAFB;  /* MUDOU - hover cinza bem claro */
+  --error-color: #EF4444;
+  --success-color: #10B981;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);  /* MUDOU - sombra mais suave */
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Botões */
+.btn-primary, .btn-secondary {
+  width: 100%;
+  padding: 18px 24px;  /* AUMENTOU */
+  border: none;
+  border-radius: 12px;
+  font-size: 17px;  /* AUMENTOU */
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.3px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #2D3748 0%, #1A202C 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #1A202C 0%, #000000 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background-color: #FFFFFF;
+  color: #2D3748;
+  border: 2px solid #D1D5DB;
+}
+
+.btn-secondary:hover {
+  background-color: #F9FAFB;
+  border-color: #9CA3AF;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+}
+
+/* Mensagens */
+.message {
+  padding: 14px;
+  border-radius: 12px;
+  margin-top: 20px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message.error {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--error-color);
+  border: 1px solid var(--error-color);
+}
+
+.message.success {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
+  border: 1px solid var(--success-color);
+}
+
+/* Inputs */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+  width: 100%;
+  padding: 18px 20px;  /* AUMENTOU */
+  margin-bottom: 18px;  /* AUMENTOU */
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 16px;  /* AUMENTOU */
+  transition: all 0.3s ease;
+  background-color: #FFFFFF;
+  color: var(--text-color);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-light);
+  font-size: 15px;  /* AUMENTOU */
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: #9CA3AF;
+  background-color: #FAFAFA;
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.03);
+}
+
+
+/* ===== MODAL DE EDITAR PUBLICAÇÃO ===== */
+.modal-edit-post {
+  max-width: 500px;
+  width: 90%;
+}
+
+.form-edit-post {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-edit-post .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-edit-post label {
+  font-weight: 600;
+  font-size: 14px;
+  color: #262626;
+}
+
+.form-edit-post input,
+.form-edit-post textarea {
+  padding: 12px;
+  border: 1px solid #DBDBDB;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  background-color: #FAFAFA;
+  transition: border-color 0.2s;
+}
+
+.form-edit-post input:focus,
+.form-edit-post textarea:focus {
+  outline: none;
+  border-color: #0095F6;
+  background-color: #FFFFFF;
+}
+
+.form-edit-post textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.btn-cancel {
+  flex: 1;
+  padding: 10px 20px;
+  border: 1px solid #DBDBDB;
+  border-radius: 8px;
+  background-color: #FFFFFF;
+  color: #262626;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+  background-color: #FAFAFA;
+}
+
+.btn-primary {
+  flex: 1;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background-color: #0095F6;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: #0081D6;
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* Botão de Editar no menu de opções */
+.view-option-item.edit {
+  color: #0095F6;
+}
+
+.view-option-item.edit:hover {
+  background-color: rgba(0, 149, 246, 0.1);
+}

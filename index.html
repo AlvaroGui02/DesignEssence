@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DesignEssence - Login</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/login.css">
+</head>
+
+<body>
+  <div class="login-container">
+    <div class="login-box">
+      <img src="images/logo.png" alt="DesignEssence"
+        style="max-width: 350px; width: 350px; height: auto; display: block; margin: 0 auto 1px;">
+      <p class="subtitle">COMPARTILHE SEUS DESIGNERS COM O MUNDO</p>
+
+      <!-- Abas -->
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="login">Entrar</button>
+        <button class="tab-btn" data-tab="register">Criar Conta</button>
+      </div>
+
+      <!-- Aba de Login -->
+      <div id="loginTab" class="tab-content active">
+        <form id="formLogin">
+          <input type="email" id="loginEmail" placeholder="Email" required>
+          <input type="password" id="loginPassword" placeholder="Senha" required>
+          <button type="submit" class="btn-primary">Entrar</button>
+        </form>
+      </div>
+
+      <!-- Aba de Registro -->
+      <div id="registerTab" class="tab-content">
+        <form id="formRegister">
+          <input type="text" id="registerUsername" placeholder="Nome de usuário" required maxlength="38">
+          <input type="email" id="registerEmail" placeholder="Email" required>
+          <input type="password" id="registerPassword" placeholder="Senha (mínimo 6 caracteres)" required>
+          <button type="submit" class="btn-primary">Criar Conta</button>
+        </form>
+      </div>
+
+      <div id="message" class="message hidden"></div>
+    </div>
+  </div>
+
+  <!-- Importar Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+
+</html>

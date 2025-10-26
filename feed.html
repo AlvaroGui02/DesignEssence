@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DesignEssence - Feed</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/feed.css">
+</head>
+<body>
+  <!-- Barra Superior -->
+  <header class="navbar">
+    <div class="navbar-container">
+      <img src="images/logo.png" alt="Logo" class="navbar-logo-img" onclick="window.location.href='feed.html'">
+      
+      <div class="navbar-search">
+        <input type="text" id="searchInput" placeholder="Pesquisar...">
+      </div>
+      
+      <div class="navbar-actions">
+        <button id="btnNewPost" class="btn-new-post">Nova Publicação</button>
+        <div class="user-menu">
+          <img id="userAvatar" src="" alt="Avatar" class="user-avatar">
+          <!-- Dropdown Menu -->
+          <div id="dropdownMenu" class="dropdown-menu hidden">
+            <a href="profile.html" class="dropdown-item">
+              <span class="icon">👤</span> Perfil
+            </a>
+            <a href="settings.html" class="dropdown-item">
+              <span class="icon">⚙️</span> Configurações
+            </a>
+            <div class="dropdown-divider"></div>
+            <button id="btnLogout" class="dropdown-item logout">
+              <span class="icon">🚪</span> Sair
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Container Principal -->
+  <main class="main-container">
+    <div class="feed-container">
+      <!-- Posts do Feed -->
+      <div id="feedPosts" class="feed-posts">
+        <!-- Posts serão carregados aqui -->
+      </div>
+      
+      <!-- Loading -->
+      <div id="loadingFeed" class="loading">
+        <p>Carregando publicações...</p>
+      </div>
+      
+      <!-- Feed vazio -->
+      <div id="emptyFeed" class="empty-feed hidden">
+        <h3>Nenhuma publicação ainda</h3>
+        <p>Seja o primeiro a compartilhar seu design!</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal de Nova Publicação -->
+  <div id="modalNewPost" class="modal hidden">
+    <div class="modal-content modal-post">
+      <div class="modal-header">
+        <h2>Criar nova publicação</h2>
+        <button class="modal-close" id="closeModalPost">&times;</button>
+      </div>
+      
+      <form id="formNewPost">
+        <div class="file-upload">
+          <label for="postImage" class="file-label">
+            <span id="fileName">📷 Escolher imagem do projeto</span>
+          </label>
+          <input type="file" id="postImage" accept="image/*" required>
+        </div>
+        
+        <div id="imagePreview" class="image-preview hidden">
+          <img id="previewImg" src="" alt="Preview">
+        </div>
+        
+        <div class="form-group">
+          <label for="postTitle">Título do projeto</label>
+          <input type="text" id="postTitle" placeholder="Ex: Landing page minimalista" required maxlength="100">
+        </div>
+        
+        <div class="form-group">
+          <label for="postDescription">Legenda (opcional)</label>
+          <textarea id="postDescription" placeholder="Conte sobre seu projeto..." rows="4" maxlength="500"></textarea>
+          <small class="char-counter"><span id="descCharCount">0</span>/500</small>
+        </div>
+        
+        <button type="submit" class="btn-primary">Publicar</button>
+      </form>
+      
+      <div id="postMessage" class="message hidden"></div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/feed.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/zoom.js"></script>
+</body>
+</html>
