@@ -710,12 +710,11 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>
 
               <div class="view-post-comments">
-                <div class="view-comment">
+                <div class="view-comment" style="background: #fafafa; padding: 12px; border-radius: 8px; border-left: 3px solid #0095f6; margin-bottom: 12px;">
                   <img src="${post.profiles.avatar_url || '/images/avatar-default.png'}" alt="${post.profiles.username}" class="view-comment-avatar">
                   <div class="view-comment-content">
                     <div>
-                      <span class="view-comment-username">${post.profiles.username}</span>
-                      <span class="view-comment-text">${post.title}</span>
+                      <span class="view-comment-username view-post-author-name" data-user-id="${post.user_id}" style="cursor: pointer; font-weight: bold;">${post.profiles.username}</span>: <span class="view-comment-text">${post.title}</span>
                     </div>
                     ${post.description ? `<div class="view-comment-text" style="margin-top: 8px;">${post.description}</div>` : ''}
                     <div class="view-comment-date">${formatDate(post.created_at)}</div>
@@ -729,8 +728,7 @@ document.addEventListener('DOMContentLoaded', () => {
                       <img src="${c.profiles.avatar_url || '/images/avatar-default.png'}" alt="${c.profiles.username}" class="view-comment-avatar">
                       <div class="view-comment-content">
                         <div>
-                          <span class="view-comment-username">${c.profiles.username}</span>
-                          <span class="view-comment-text">${c.content}</span>
+                          <span class="view-comment-username" data-user-id="${c.user_id}" style="cursor: pointer; font-weight: bold;">${c.profiles.username}</span>: <span class="view-comment-text">${c.content}</span>
                         </div>
                         <div class="view-comment-date">${formatDate(c.created_at)}</div>
                       </div>
@@ -922,6 +920,32 @@ document.addEventListener('DOMContentLoaded', () => {
               if (input && input.value.trim()) {
                 await addComment(postId, input.value.trim());
                 openPostModal(postId);
+              }
+            });
+          }
+        }
+
+        // Event listeners para nomes de usuários nos comentários (tornar clicáveis)
+        if (viewPostContent) {
+          const commentUsernames = viewPostContent.querySelectorAll('.view-comment-username[data-user-id]');
+          commentUsernames.forEach(username => {
+            username.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const userId = username.getAttribute('data-user-id');
+              if (userId) {
+                window.location.href = `profile.html?user=${userId}`;
+              }
+            });
+          });
+
+          // Event listener para o nome do autor do post (legenda)
+          const postAuthorName = viewPostContent.querySelector('.view-post-author-name[data-user-id]');
+          if (postAuthorName) {
+            postAuthorName.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const userId = postAuthorName.getAttribute('data-user-id');
+              if (userId) {
+                window.location.href = `profile.html?user=${userId}`;
               }
             });
           }

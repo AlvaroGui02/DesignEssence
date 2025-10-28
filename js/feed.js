@@ -338,17 +338,35 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="post-info">
             <div class="post-likes">${likesCount || 0} curtida${likesCount !== 1 ? 's' : ''}</div>
             ${post.description ? `
-              <div class="post-caption">
-                <span class="username">${post.profiles.username}</span>
-                <span class="post-description">${post.description}</span>
+              <div class="post-caption" style="background: #fafafa; padding: 12px 8px; margin: 8px 0; border-radius: 4px; border-left: 3px solid #0095f6;">
+                <span class="username" data-user-id="${post.user_id}" style="cursor: pointer; font-weight: bold;">${post.profiles.username}</span>: <span class="post-description">${post.description}</span>
               </div>
             ` : ''}
-            ${comments && comments.length > 0 ? comments.map(c => `
-              <div class="post-caption">
-                <span class="username">${c.profiles.username}</span>
-                ${c.content}
+            ${comments && comments.length > 0 ? `
+              <div class="post-comments-preview">
+                ${comments.map(c => {
+                  const isCommentOwner = currentUser && c.user_id === currentUser.id;
+                  return `
+                    <div class="post-caption" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+                      <div style="flex: 1;">
+                        <span class="username" data-user-id="${c.user_id}" style="cursor: pointer; font-weight: bold;">${c.profiles.username}</span>: ${c.content}
+                      </div>
+                      ${isCommentOwner ? `
+                        <div class="comment-options" style="position: relative;">
+                          <button class="btn-comment-options" style="background: none; border: none; cursor: pointer; font-size: 18px; padding: 0 4px;">⋮</button>
+                          <div class="comment-options-menu hidden" style="position: absolute; right: 0; top: 100%; background: white; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 10; min-width: 150px;">
+                            <button class="comment-option-item delete" data-comment-id="${c.id}" style="width: 100%; padding: 8px 12px; border: none; background: none; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px; color: #ed4956;">
+                              <span class="icon">🗑️</span>
+                              Excluir comentário
+                            </button>
+                          </div>
+                        </div>
+                      ` : ''}
+                    </div>
+                  `;
+                }).join('')}
               </div>
-            `).join('') : ''}
+            ` : ''}
             <div class="post-date">${formatDate(post.created_at)}</div>
           </div>
           
@@ -367,6 +385,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (postHeaderLeft) {
           postHeaderLeft.addEventListener('click', () => {
             const userId = postHeaderLeft.getAttribute('data-user-id');
+            if (userId) {
+              window.location.href = `profile.html?user=${userId}`;
+            }
+          });
+        }
+
+        // ===== TORNAR NOME NA LEGENDA CLICÁVEL =====
+        const captionUsername = postCard.querySelector('.post-caption .username[data-user-id]');
+        if (captionUsername) {
+          captionUsername.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const userId = captionUsername.getAttribute('data-user-id');
             if (userId) {
               window.location.href = `profile.html?user=${userId}`;
             }
@@ -462,6 +492,65 @@ document.addEventListener('DOMContentLoaded', () => {
           });
         }
 
+        // Event listeners para botões de opções dos comentários iniciais
+        const commentOptionsButtons = postCard.querySelectorAll('.btn-comment-options');
+        commentOptionsButtons.forEach(btn => {
+          const commentOptionsMenu = btn.nextElementSibling;
+
+          if (commentOptionsMenu) {
+            btn.addEventListener('click', (e) => {
+              e.stopPropagation();
+
+              // Fechar outros menus abertos
+              document.querySelectorAll('.comment-options-menu').forEach(menu => {
+                if (menu !== commentOptionsMenu) {
+                  menu.classList.add('hidden');
+                }
+              });
+
+              commentOptionsMenu.classList.toggle('hidden');
+            });
+
+            // Botão de excluir comentário
+            const deleteCommentBtn = commentOptionsMenu.querySelector('.comment-option-item.delete');
+            if (deleteCommentBtn) {
+              deleteCommentBtn.addEventListener('click', async () => {
+                const commentId = deleteCommentBtn.getAttribute('data-comment-id');
+                const confirmDelete = confirm('Tem certeza que deseja excluir este comentário?');
+                if (!confirmDelete) return;
+
+                try {
+                  const { error } = await supabase
+                    .from('comments')
+                    .delete()
+                    .eq('id', commentId);
+
+                  if (error) throw error;
+
+                  // Atualizar o post após excluir o comentário
+                  updatePostCard(post.id);
+
+                } catch (error) {
+                  console.error('Erro ao excluir comentário:', error);
+                  alert('Erro ao excluir comentário: ' + error.message);
+                }
+              });
+            }
+          }
+        });
+
+        // Event listeners para nomes de usuários nos comentários (tornar clicáveis)
+        const commentUsernames = postCard.querySelectorAll('.post-caption .username[data-user-id]');
+        commentUsernames.forEach(username => {
+          username.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const userId = username.getAttribute('data-user-id');
+            if (userId) {
+              window.location.href = `profile.html?user=${userId}`;
+            }
+          });
+        });
+
       } catch (error) {
         console.error('Erro render:', error);
       }
@@ -513,28 +602,110 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
 
-      const commentsPreview = postCard.querySelector('.post-comments-preview');
-      if (commentsPreview) {
-        commentsPreview.remove();
-      }
+      // Remove TODOS os elementos de comentários existentes para evitar duplicação
+      const allCommentsPreview = postCard.querySelectorAll('.post-comments-preview');
+      allCommentsPreview.forEach(preview => preview.remove());
 
       if (comments && comments.length > 0) {
         const postInfo = postCard.querySelector('.post-info');
         const dateElement = postInfo.querySelector('.post-date');
 
-        const commentsHTML = comments.map(c => `
-          <div class="post-caption">
-            <span class="username">${c.profiles.username}</span>
-            ${c.content}
-          </div>
-        `).join('');
+        const commentsHTML = comments.map(c => {
+          const isCommentOwner = currentUser && c.user_id === currentUser.id;
+          return `
+            <div class="post-caption" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+              <div style="flex: 1;">
+                <span class="username" data-user-id="${c.user_id}" style="cursor: pointer; font-weight: bold;">${c.profiles.username}</span>: ${c.content}
+              </div>
+              ${isCommentOwner ? `
+                <div class="comment-options" style="position: relative;">
+                  <button class="btn-comment-options" style="background: none; border: none; cursor: pointer; font-size: 18px; padding: 0 4px;">⋮</button>
+                  <div class="comment-options-menu hidden" style="position: absolute; right: 0; top: 100%; background: white; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 10; min-width: 150px;">
+                    <button class="comment-option-item delete" data-comment-id="${c.id}" style="width: 100%; padding: 8px 12px; border: none; background: none; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px; color: #ed4956;">
+                      <span class="icon">🗑️</span>
+                      Excluir comentário
+                    </button>
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+          `;
+        }).join('');
 
         const commentsDiv = document.createElement('div');
         commentsDiv.className = 'post-comments-preview';
         commentsDiv.innerHTML = commentsHTML;
 
         dateElement.before(commentsDiv);
+
+        // Adicionar event listeners para os botões de opções dos comentários
+        const commentOptionsButtons = commentsDiv.querySelectorAll('.btn-comment-options');
+        commentOptionsButtons.forEach(btn => {
+          const commentOptionsMenu = btn.nextElementSibling;
+
+          if (commentOptionsMenu) {
+            btn.addEventListener('click', (e) => {
+              e.stopPropagation();
+
+              // Fechar outros menus abertos
+              document.querySelectorAll('.comment-options-menu').forEach(menu => {
+                if (menu !== commentOptionsMenu) {
+                  menu.classList.add('hidden');
+                }
+              });
+
+              commentOptionsMenu.classList.toggle('hidden');
+            });
+
+            // Botão de excluir comentário
+            const deleteCommentBtn = commentOptionsMenu.querySelector('.comment-option-item.delete');
+            if (deleteCommentBtn) {
+              deleteCommentBtn.addEventListener('click', async () => {
+                const commentId = deleteCommentBtn.getAttribute('data-comment-id');
+                const confirmDelete = confirm('Tem certeza que deseja excluir este comentário?');
+                if (!confirmDelete) return;
+
+                try {
+                  const { error } = await supabase
+                    .from('comments')
+                    .delete()
+                    .eq('id', commentId);
+
+                  if (error) throw error;
+
+                  // Atualizar o post após excluir o comentário
+                  updatePostCard(postId);
+
+                } catch (error) {
+                  console.error('Erro ao excluir comentário:', error);
+                  alert('Erro ao excluir comentário: ' + error.message);
+                }
+              });
+            }
+          }
+        });
+
+        // Event listeners para nomes de usuários nos comentários (tornar clicáveis)
+        const commentUsernames = commentsDiv.querySelectorAll('.username[data-user-id]');
+        commentUsernames.forEach(username => {
+          username.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const userId = username.getAttribute('data-user-id');
+            if (userId) {
+              window.location.href = `profile.html?user=${userId}`;
+            }
+          });
+        });
       }
+
+      // Fechar menus ao clicar fora
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.comment-options')) {
+          document.querySelectorAll('.comment-options-menu').forEach(menu => {
+            menu.classList.add('hidden');
+          });
+        }
+      });
     }
 
     async function toggleLike(postId) {
