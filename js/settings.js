@@ -594,15 +594,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    // ===== SELECTS (IDIOMA, FUSO, DATA) =====
-    const selects = document.querySelectorAll('.select-input');
-
-    selects.forEach(select => {
-      select.addEventListener('change', () => {
-        showSettingsMessage('Configuração salva!', 'success');
-      });
-    });
-
     function showSettingsMessage(message, type) {
       if (settingsMessage) {
         settingsMessage.textContent = message;

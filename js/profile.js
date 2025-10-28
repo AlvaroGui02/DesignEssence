@@ -685,17 +685,19 @@ document.addEventListener('DOMContentLoaded', () => {
         // Renderizar modal
         if (viewPostContent) {
           viewPostContent.innerHTML = `
-            <img src="${post.image_url}" alt="${post.title}" class="view-post-image">
-            
-            <div class="view-post-sidebar">
-              <div class="view-post-header">
-                <img src="${post.profiles.avatar_url || '/images/avatar-default.png'}" alt="${post.profiles.username}" class="view-post-avatar">
-                <span class="view-post-author">${post.profiles.username}</span>
-                
-                ${isOwner ? `
-                  <div class="view-post-options">
-                    <button class="btn-view-options">⋮</button>
-                    <div class="view-options-menu hidden">
+    <img src="${post.image_url}" alt="${post.title}" class="view-post-image">
+    
+    <div class="view-post-sidebar">
+      <div class="view-post-header">
+        <div class="post-header-left">
+          <img src="${post.profiles.avatar_url || '/images/avatar-default.png'}" alt="${post.profiles.username}" class="view-post-avatar">
+          <span class="view-post-author">${post.profiles.username}</span>
+        </div>
+        
+        ${isOwner ? `
+  <div class="view-post-options">
+    <button class="btn-view-options">⋮</button>
+            <div class="view-options-menu hidden">
                       <button class="view-option-item edit" data-action="edit">
                         <span class="icon">✏️</span>
                         Editar publicação
@@ -1142,7 +1144,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       try {
         console.log(`🔍 Buscando ${type} para o usuário:`, profileUserId);
-        
+
         let userIds = [];
 
         if (type === 'followers') {
@@ -1337,7 +1339,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==== NOVA PUBLICAÇÃO NO PERFIL (mesma lógica do feed) ====
-(function initProfileNewPost(){
+(function initProfileNewPost() {
 
   const btnNewPost = document.getElementById('btnNewPost');
   const modalNewPost = document.getElementById('modalNewPost');
@@ -1414,7 +1416,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function showMessage(msg, type){
+  function showMessage(msg, type) {
     if (postMessage) {
       postMessage.textContent = msg;
       postMessage.className = `message ${type}`;
@@ -1455,7 +1457,7 @@ document.addEventListener('DOMContentLoaded', () => {
           // Recarregar posts do perfil
           if (typeof loadProfile === 'function') loadProfile();
         }, 800);
-      } catch(err){
+      } catch (err) {
         console.error(err);
         showMessage('Erro: ' + (err?.message || 'falha ao publicar'), 'error');
       }
