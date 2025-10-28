@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
 
       } catch (error) {
-        showMessage('Erro ao fazer login: ' + error.message, 'error');
+        showMessage('Email ou senha errado. Digite corretamente!', 'error');
       }
     });
 
@@ -137,9 +137,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (signUpError) {
           // Verifica se o erro é de email já cadastrado
-          if (signUpError.message.includes('already registered') || 
-              signUpError.message.includes('User already registered') ||
-              signUpError.message.includes('already been registered')) {
+          if (signUpError.message.includes('already registered') ||
+            signUpError.message.includes('User already registered') ||
+            signUpError.message.includes('already been registered')) {
             showMessage('Este email já está sendo utilizado em outra conta', 'error');
             return;
           }
@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('registerUsername').value = '';
           document.getElementById('registerEmail').value = '';
           document.getElementById('registerPassword').value = '';
-          
+
           setTimeout(() => {
             document.querySelector('.tab-btn[data-tab="login"]').click();
             showMessage('Faça login com suas credenciais', 'success');
@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 4. Criar perfil do usuário (apenas se não existir)
         const defaultAvatarUrl = 'images/avatar-default.png';
-        
+
         const { error: profileError } = await supabase
           .from('profiles')
           .insert([
@@ -207,10 +207,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       } catch (error) {
         console.error('Erro completo:', error);
-        
+
         // Mensagens de erro mais amigáveis
         let errorMessage = 'Erro ao criar conta: ';
-        
+
         if (error.message.includes('duplicate key')) {
           errorMessage = 'Esta conta já existe. Tente fazer login.';
           setTimeout(() => {
@@ -218,13 +218,13 @@ document.addEventListener('DOMContentLoaded', () => {
           }, 2000);
         } else if (error.message.includes('invalid email')) {
           errorMessage = 'Email inválido. Verifique e tente novamente.';
-        } else if (error.message.includes('already registered') || 
-                   error.message.includes('User already registered')) {
+        } else if (error.message.includes('already registered') ||
+          error.message.includes('User already registered')) {
           errorMessage = 'Este email já está sendo utilizado em outra conta';
         } else {
           errorMessage += error.message;
         }
-        
+
         showMessage(errorMessage, 'error');
       }
     });
